@@ -24,6 +24,23 @@ func (h *handler) CreateTask(r *restful.Request, w *restful.Response) {
 	response.Success(w.ResponseWriter, set)
 }
 
+func (h *handler) CopyTask(r *restful.Request, w *restful.Response) {
+	req := task.NewCreateTaskRequest()
+
+	if err := r.ReadEntity(req); err != nil {
+		response.Failed(w.ResponseWriter, err)
+		return
+	}
+	h.log.Debugf("url 入参: %s", req)
+	set, err := h.service.CopyTask(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w.ResponseWriter, err)
+		return
+	}
+
+	response.Success(w.ResponseWriter, set)
+}
+
 //func (h *handler) QueryTask(r *restful.Request, w *restful.Response) {
 //	req := task.NewQueryTaskRequestFromHTTP(r.Request)
 //	set, err := h.service.QueryTask(r.Request.Context(), req)

@@ -8,6 +8,7 @@ import "github.com/infraboard/mcube/pb/request/request.proto";
 
 service Service {
     rpc CreateTask(CreateTaskRequest) returns(Task);
+    rpc CopyTask(CreateTaskRequest) returns(Task);
     rpc QueryTask(QueryTaskRequest) returns(TaskSet);
     rpc DescribeTask(DescribeTaskRequest) returns(Task);
     rpc UpdateTask(UpdateTaskRequest) returns(Task);
@@ -32,6 +33,7 @@ message Task {
     // @gotags: json:"data" bson:"data"
     CreateTaskRequest data = 5;
 }
+
 enum JenkinsEnv {
     // jenkins 对应环境  开发 测试 预发 压测 正式
     ENV = 0;
@@ -76,6 +78,49 @@ message CreateTaskRequest {
     // jenkins 文件夹
     // @gotags: json:"folder" bson:"folder"
     string folder =11;
+    // 复制job 源job
+    // @gotags: json:"oldjobName" bson:"oldjobName"
+    string oldjobName = 12;
+    // 复制job 目标job
+    // @gotags: json:"newjobName" bson:"newjobName"
+    string newjobName = 13;
+}
+
+message CopyTaskRequest {
+    // job创建人
+    // @gotags: json:"create_by" bson:"create_by"
+    string create_by = 1;
+    // job名称
+    // @gotags: json:"jobName" bson:"jobName" validate:"required"
+    string oldjobName = 2;
+    // jenkins 环境
+    // @gotags: json:"Env" bson:"Env"  validate:"required"
+    JenkinsEnv env =3;
+    // 代码库地址 URL
+    // @gotags: json:"gitUrl" bson:"gitUrl"
+    string gitUrl = 4;
+    // 代码分支
+    // @gotags: json:"branch" bson:"branch"
+    string branch = 5;
+    // 应用名称
+    // @gotags: json:"appName" bson:"appName"
+    string appName = 6;
+    // 应用信息
+    // @gotags: json:"description" bson:"description"
+    string description =7;
+    // 构建脚本
+    // @gotags: json:"buildeshell" bson:"buildeshell"
+    string buildeshell =8;
+    // 构建环境，Java1.8 NodeJS10.6.2
+    // @gotags: json:"buildenv" bson:"buildenv"
+    string buildenv =9;
+    // 创建的xml信息
+    // @gotags: json:"xml" bson:"xml"
+    string xml =10;
+    // jenkins 文件夹
+    // @gotags: json:"folder" bson:"folder"
+    string folder =11;
+    string newjobName = 12;
 }
 
 message QueryTaskRequest {

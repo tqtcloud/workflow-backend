@@ -43,6 +43,11 @@ func (h *handler) Registry(ws *restful.WebService) {
 		Reads(task.CreateTaskRequest{}).
 		Writes(response.NewData(task.Task{})))
 
+	ws.Route(ws.PUT("").To(h.CopyTask).
+		Doc("CopyTask a task").
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Reads(task.CreateTaskRequest{}).
+		Writes(response.NewData(task.Task{})))
 	//ws.Route(ws.GET("/").To(h.QueryTask).
 	//	Doc("get all tasks").
 	//	Metadata(restfulspec.KeyOpenAPITags, tags).

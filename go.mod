@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.2.0
+	github.com/bndr/gojenkins v1.1.1-0.20220729153700-e5f8277411a6
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/emicklei/go-restful-openapi v1.4.1
 	github.com/emicklei/go-restful-openapi/v2 v2.9.1

@@ -25,10 +25,10 @@ func newConfig() *Config {
 
 // Config 应用配置
 type Config struct {
-	App *app `toml:"app"`
-	Log *log `toml:"log"`
-
-	Mongo *mongodb `toml:"mongodb"`
+	App     *app     `toml:"app"`
+	Log     *log     `toml:"log"`
+	Jenkins *jenkins `toml:"jenkins"`
+	Mongo   *mongodb `toml:"mongodb"`
 }
 
 type app struct {
@@ -90,6 +90,15 @@ type log struct {
 	PathDir string    `toml:"path_dir" env:"LOG_PATH_DIR"`
 	Format  LogFormat `toml:"format" env:"LOG_FORMAT"`
 	To      LogTo     `toml:"to" env:"LOG_TO"`
+}
+
+type jenkins struct {
+	DevEndpoints  string `toml:"devendpoints" env:"Dev_ENDPOINTS" `
+	TestEndpoints string `toml:"testendpoints" env:"Test_ENDPOINTS" `
+	UatEndpoints  string `toml:"uatendpoints" env:"Uat_ENDPOINTS" `
+	LptEndpoints  string `toml:"lptendpoints" env:"Lpt_ENDPOINTS" `
+	User          string `toml:"user" env:"MONGO_USERNAME"`
+	Password      string `toml:"password" env:"MONGO_PASSWORD"`
 }
 
 func newDefaultLog() *log {

@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error)
+	CopyTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error)
 	QueryTask(ctx context.Context, in *QueryTaskRequest, opts ...grpc.CallOption) (*TaskSet, error)
 	DescribeTask(ctx context.Context, in *DescribeTaskRequest, opts ...grpc.CallOption) (*Task, error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*Task, error)
@@ -40,6 +41,15 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 func (c *serviceClient) CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error) {
 	out := new(Task)
 	err := c.cc.Invoke(ctx, "/tqtcloud.task.Service/CreateTask", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) CopyTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error) {
+	out := new(Task)
+	err := c.cc.Invoke(ctx, "/tqtcloud.task.Service/CopyTask", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +97,7 @@ func (c *serviceClient) DeleteTask(ctx context.Context, in *DeleteTaskRequest, o
 // for forward compatibility
 type ServiceServer interface {
 	CreateTask(context.Context, *CreateTaskRequest) (*Task, error)
+	CopyTask(context.Context, *CreateTaskRequest) (*Task, error)
 	QueryTask(context.Context, *QueryTaskRequest) (*TaskSet, error)
 	DescribeTask(context.Context, *DescribeTaskRequest) (*Task, error)
 	UpdateTask(context.Context, *UpdateTaskRequest) (*Task, error)
@@ -100,6 +111,9 @@ type UnimplementedServiceServer struct {
 
 func (UnimplementedServiceServer) CreateTask(context.Context, *CreateTaskRequest) (*Task, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTask not implemented")
+}
+func (UnimplementedServiceServer) CopyTask(context.Context, *CreateTaskRequest) (*Task, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CopyTask not implemented")
 }
 func (UnimplementedServiceServer) QueryTask(context.Context, *QueryTaskRequest) (*TaskSet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryTask not implemented")
@@ -140,6 +154,24 @@ func _Service_CreateTask_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).CreateTask(ctx, req.(*CreateTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_CopyTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).CopyTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tqtcloud.task.Service/CopyTask",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).CopyTask(ctx, req.(*CreateTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -226,6 +258,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTask",
 			Handler:    _Service_CreateTask_Handler,
+		},
+		{
+			MethodName: "CopyTask",
+			Handler:    _Service_CopyTask_Handler,
 		},
 		{
 			MethodName: "QueryTask",
