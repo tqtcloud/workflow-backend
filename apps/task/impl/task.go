@@ -2,13 +2,15 @@ package impl
 
 import (
 	"context"
+	"encoding/xml"
 	"github.com/bndr/gojenkins"
 	"github.com/infraboard/mcube/exception"
 	"github.com/tqtcloud/workflow-backend/apps/task"
+	"os"
+	"strings"
 )
 
-func (s *service) CreateTask(ctx context.Context, req *task.CreateTaskRequest) (
-	*task.Task, error) {
+func (s *service) CreateTask(ctx context.Context, req *task.CreateTaskRequest) (*task.Task, error) {
 	ins, err := task.NewTask(req)
 	if err != nil {
 		return nil, exception.NewBadRequest("validate create task error, %s", err)
@@ -16,22 +18,54 @@ func (s *service) CreateTask(ctx context.Context, req *task.CreateTaskRequest) (
 
 	switch ins.Data.Env {
 	case task.JenkinsEnv_DEV:
-		//jenkins := gojenkins.CreateJenkins(nil, "https://dz.leyaoyao.com/", "tangqitao", "Ms3d2eDwrfId")
-		//_, err = jenkins.Init(ctx)
-		//if err != nil {
-		//	s.log.Printf("连接Jenkins失败, %v\n", err)
-		//	return nil, err
-		//}
-		//s.log.Debug("Jenkins连接成功")
-		//_, err = jenkins.CreateJobInFolder(ctx, ins.Data.Xml, ins.Data.JobName, ins.Data.Folder)
-		//// 创建在 根 目录的 job
-		//// _, err = jenkins.CreateJob(ctx, jobXml, "apijob1")
-		//if err != nil {
-		//	s.log.Printf("CreateJob error %s \n", err)
-		//}
-		s.log.Debug("连接 JenkinsEnv_DEV 创建 job %s ", ins.Data.Env)
-		s.log.Debug(ins.Data.Xml, ins.Data.JobName, ins.Data.Folder)
+		jenkins, err := task.ConnectJenkins(ctx, s.conf.Jenkins.DevEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)
+		if err != nil {
+			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
+		}
+		// 前端定义好下拉列表在此处进行模板的选择，后端Java? go? nodejs?
+		// jobtemplate/job/go-backend-template  go 模板名
+		templateName := ins.Data.TemplateName
+		job, err := jenkins.GetJob(ctx, templateName)
+		if err != nil {
+			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
+		}
+		// job.UpdateConfig()
+		// jenkins.UpdateJob()
+		config, _ := job.GetConfig(ctx)
 
+		config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
+		config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
+
+		s.log.Debug(config)
+		data := Project{}
+		if err := xml.Unmarshal([]byte(config), &data); err != nil {
+			s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+			return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
+		}
+
+		data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+		if ins.Data.Buildeshell != "" {
+			data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+		}
+		data.Description = ins.Data.Description
+		// appname
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue = ins.Data.AppName
+
+		xmlData, err := xml.MarshalIndent(&data, " ", " ")
+		if err != nil {
+			s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+			return nil, exception.NewInternalServerError("Job config MarshalIndent error, %s", err)
+		}
+
+		job, err = jenkins.CreateJobInFolder(ctx, string(xmlData), ins.Data.JobName, ins.Data.Folder)
+		if err != nil {
+			s.log.Errorf("jenkins CreateJobInFolder error：%s,   job名称：%s", err, ins.Data.JobName)
+			os.Exit(-1)
+		}
+		s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, job.GetName(), ins.Data.Folder)
+		// 创建在 根 目录的 job
+		// _, err = jenkins.CreateJob(ctx, jobXml, "apijob1")
 	case task.JenkinsEnv_TEST:
 		s.log.Debug("连接 JenkinsEnv_TEST 创建 job %s ", ins.Data.Env)
 
@@ -80,7 +114,7 @@ func (s *service) CopyTask(ctx context.Context, req *task.CreateTaskRequest) (*t
 			return nil, err
 		}
 		s.log.Debug("连接 JenkinsEnv_DEV 创建 job %s ", ins.Data.Env)
-		s.log.Debug(ins.Data.Xml, ins.Data.JobName, ins.Data.Folder)
+		s.log.Debugf("job复制成功. %s 位于文件夹 %s", ins.Data.JobName, ins.Data.Folder)
 
 	case task.JenkinsEnv_TEST:
 		s.log.Debug(s.conf.Jenkins.DevEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)

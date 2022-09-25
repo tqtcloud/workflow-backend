@@ -1,0 +1,73 @@
+# jenkins API 模块
+
+## create opst
+
+### 请求：
+
+```json
+{
+    "jobName":"apijob0925",
+    "create_by":"tqt",
+    "env":"DEV",
+    "gitUrl": "https://gitlab.leyaoyao.com/iot/gateway/netty-external.git",
+    "branch": "sit",
+    "description": "0925 test api job",
+    "appName": "apijob0925",
+    //buildeshell 此处可不填,应用模板的打包命令  postman提交的时候请删除
+    //"buildeshell": "echo 1111",
+    "folder": "test2",
+    "templateName": "jobtemplate/job/go-backend-template"
+}
+
+```
+
+### 字段解释
+
+|    参数名    |  类型  |               描述               |     默认值     | 是否必须 |
+| :----------: | :----: | :------------------------------: | :------------: | :------: |
+|   jobName    | string |         jenkins job 名称         |    默认为空    |   must   |
+|  create_by   | string |          任务发起创建人          |    默认为空    |   must   |
+|     env      | string | Jenkins环境：dev,qa,uat,lpt,prod |    默认为空    |   must   |
+|    gitUrl    | string |             Git 地址             |    默认为空    |   must   |
+|    branch    | string |           Git 默认分支           |    默认为空    |   must   |
+| description  | string |           job 描述信息           |    默认为空    |   must   |
+|   appName    | string |             应用名称             |    默认为空    |   must   |
+| buildeshell  | string |            打包shell             | 默认为template | optional |
+|    folder    | string |          jenkins 文件夹          |    默认为空    |   must   |
+| templateName | string |       基于的jenkins模板job       |    默认为空    |   must   |
+
+> **注意：**
+>
+> templateName字段为job类型模板字段，按照现有思路作为一个固定参数由前端直接传递
+>
+> 例如：前端为一个下拉框，可以选择后端模板为：go，Java，nodejs等
+
+### 正常返回
+
+```json
+{
+    "code": 0,
+    "data": {
+        "id": "cco15vbehud2k23mhs10",
+        "create_at": 1664094973994602,
+        "update_at": 0,
+        "update_by": "",
+        "data": {
+            "create_by": "tqt",
+            "jobName": "apijob0925",
+            "Env": "DEV",
+            "gitUrl": "https://gitlab.leyaoyao.com/iot/gateway/netty-external.git",
+            "branch": "sit",
+            "appName": "apijob0925",
+            "description": "0925 test api job",
+            "buildeshell": "",
+            "buildenv": "",
+            "folder": "test2",
+            "oldjobName": "",
+            "newjobName": "",
+            "templateName": "jobtemplate/job/go-backend-template"
+        }
+    }
+}
+```
+

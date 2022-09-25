@@ -1,6 +1,9 @@
 package task
 
 import (
+	"context"
+	"fmt"
+	"github.com/bndr/gojenkins"
 	"log"
 	"net/http"
 	"time"
@@ -112,4 +115,14 @@ func NewDeleteTaskRequestWithID(id string) *DeleteTaskRequest {
 	return &DeleteTaskRequest{
 		Id: id,
 	}
+}
+
+// ConnectJenkins 连接jenkins服务器获取客户端
+func ConnectJenkins(ctx context.Context, url, user, password string) (*gojenkins.Jenkins, error) {
+	jenkins := gojenkins.CreateJenkins(nil, url, user, password)
+	_, err := jenkins.Init(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("连接Jenkins失败, %v\n", err)
+	}
+	return jenkins, nil
 }
