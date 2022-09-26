@@ -143,9 +143,13 @@ message TaskSet {
 }
 
 message DescribeTaskRequest {
-    // Task id
-    // @gotags: json:"id"
-    string id = 1;
+    // jobname id
+    // @gotags: json:"jobname" validate:"required"
+    string jobname = 1;
+    // jenkins 环境
+    // @gotags: json:"Env"   validate:"required"
+    JenkinsEnv env =2;
+
 }
 
 message UpdateTaskRequest {

@@ -14,8 +14,9 @@ port = "18050"
 [jenkins]
 devendpoints="https://dz.leyaoyao.com/"
 testendpoints="https://dz.leyaoyao.com/"
-uatendpoints="https://dz.leyaoyao.com/"
-lptendpoints="https://dz.leyaoyao.com/"
+uatendpoints="https://tcjenkins.leyaoyao.com/"
+lptendpoints="https://tcjenkins.leyaoyao.com/"
+prodendpoints="https://dz.leyaoyao.com/"
 user="tangqitao"
 password="Ms3d2eDwrfId"
 

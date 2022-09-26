@@ -97,6 +97,7 @@ type jenkins struct {
 	TestEndpoints string `toml:"testendpoints" env:"Test_ENDPOINTS" `
 	UatEndpoints  string `toml:"uatendpoints" env:"Uat_ENDPOINTS" `
 	LptEndpoints  string `toml:"lptendpoints" env:"Lpt_ENDPOINTS" `
+	ProdEndpoints string `toml:"prodendpoints" env:"Prod_ENDPOINTS" `
 	User          string `toml:"user" env:"MONGO_USERNAME"`
 	Password      string `toml:"password" env:"MONGO_PASSWORD"`
 }
