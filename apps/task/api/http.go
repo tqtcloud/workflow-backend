@@ -56,13 +56,14 @@ func (h *handler) Registry(ws *restful.WebService) {
 	//	Writes(response.NewData(task.TaskSet{})).
 	//	Returns(200, "OK", task.TaskSet{}))
 	//
-	//ws.Route(ws.GET("/{id}").To(h.DescribeTask).
-	//	Doc("get a task").
-	//	Param(ws.PathParameter("id", "identifier of the task").DataType("integer").DefaultValue("1")).
-	//	Metadata(restfulspec.KeyOpenAPITags, tags).
-	//	Writes(response.NewData(task.Task{})).
-	//	Returns(200, "OK", response.NewData(task.Task{})).
-	//	Returns(404, "Not Found", nil))
+	ws.Route(ws.GET("/{env}/{jobname}").To(h.DescribeTask).
+		Doc("get a task").
+		Param(ws.PathParameter("env", "identifier of the jenkins env").DataType("string").DefaultValue("dev")).
+		Param(ws.PathParameter("jobname", "identifier of the jobname").DataType("string").DefaultValue("jobtemplate/job/go-backend-template")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Writes(response.NewData(task.Task{})).
+		Returns(200, "OK", response.NewData(task.Task{})).
+		Returns(404, "Not Found", nil))
 	//
 	//ws.Route(ws.PUT("/{id}").To(h.UpdateTask).
 	//	Doc("update a task").

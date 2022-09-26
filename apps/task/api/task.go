@@ -51,16 +51,17 @@ func (h *handler) CopyTask(r *restful.Request, w *restful.Response) {
 //	response.Success(w.ResponseWriter, set)
 //}
 //
-//func (h *handler) DescribeTask(r *restful.Request, w *restful.Response) {
-//	req := task.NewDescribeTaskRequest(r.PathParameter("id"))
-//	ins, err := h.service.DescribeTask(r.Request.Context(), req)
-//	if err != nil {
-//		response.Failed(w.ResponseWriter, err)
-//		return
-//	}
-//
-//	response.Success(w.ResponseWriter, ins)
-//}
+func (h *handler) DescribeTask(r *restful.Request, w *restful.Response) {
+	req := task.NewDescribeTaskRequest(r.PathParameter("jobname"), r.PathParameter("env"))
+	ins, err := h.service.DescribeTask(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w.ResponseWriter, err)
+		return
+	}
+
+	response.Success(w.ResponseWriter, ins)
+}
+
 //
 //func (h *handler) UpdateTask(r *restful.Request, w *restful.Response) {
 //	req := task.NewPutTaskRequest(r.PathParameter("id"))

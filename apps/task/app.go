@@ -72,9 +72,14 @@ func (i *Task) Patch(req *UpdateTaskRequest) error {
 	return mergo.MergeWithOverwrite(i.Data, req.Data)
 }
 
-func NewDescribeTaskRequest(id string) *DescribeTaskRequest {
+func NewDescribeTaskRequest(jobname, env string) *DescribeTaskRequest {
+	jenkinsEnv, err := ParseJenkinsEnvFromString(env)
+	if err != nil {
+		fmt.Printf("ParseJenkinsEnvFromString Error: %s\n", err)
+	}
 	return &DescribeTaskRequest{
-		Id: id,
+		Jobname: jobname,
+		Env:     jenkinsEnv,
 	}
 }
 

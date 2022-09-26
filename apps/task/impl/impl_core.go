@@ -116,15 +116,19 @@ func (s *service) getJobConfig(ctx context.Context, req *task.DescribeTaskReques
 	}
 	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
-	data := Project{}
+	data := new(Project)
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
 	}
-	ins.Data.GitUrl = data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
+	s.log.Debug(data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL)
+	s.log.Debug(data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch)
+	s.log.Debug(data.Builders.HudsonTasksShell.Command)
+	s.log.Debug(data.Description)
+	ins.Data.GitUrl = fmt.Sprintln(data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL)
 	ins.Data.Branch = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
 	ins.Data.Buildeshell = data.Builders.HudsonTasksShell.Command
-	data.Description = ins.Data.Description
+	ins.Data.Description = data.Description
 	// appname
 	ins.Data.AppName = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue
 	return ins, nil
