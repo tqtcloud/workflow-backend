@@ -1,8 +1,10 @@
 package conf
 
 import (
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/caarlos0/env/v6"
+	"os"
 )
 
 var (
@@ -12,7 +14,9 @@ var (
 // C 全局配置对象
 func C() *Config {
 	if global == nil {
-		panic("Load Config first")
+		//panic("Load Config first")
+		fmt.Println("Load Config first")
+		os.Exit(-1)
 	}
 	return global
 }

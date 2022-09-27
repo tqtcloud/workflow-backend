@@ -7,12 +7,13 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/infraboard/mcube/exception"
 	"github.com/tqtcloud/workflow-backend/apps/task"
+	"github.com/tqtcloud/workflow-backend/conf"
 	"strings"
 )
 
 // createJob 创建job逻辑实现
-func (s *service) createJob(ctx context.Context, ins *task.Task, env task.JenkinsEnv) (*task.Task, error) {
-	jenkins, err := s.envDecision(ctx, env)
+func createJob(ctx context.Context, ins *task.Task, env task.JenkinsEnv, conf *conf.Config) (*task.Task, error) {
+	jenkins, err := envDecision(ctx, env, conf)
 	if err != nil {
 		return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 	}
@@ -30,10 +31,10 @@ func (s *service) createJob(ctx context.Context, ins *task.Task, env task.Jenkin
 	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
 
-	s.log.Debug(config)
+	//s.log.Debug(config)
 	data := Project{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
-		s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
 	}
 
@@ -48,48 +49,48 @@ func (s *service) createJob(ctx context.Context, ins *task.Task, env task.Jenkin
 
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
-		s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, exception.NewInternalServerError("Job config MarshalIndent error, %s", err)
 	}
 
 	job, err = jenkins.CreateJobInFolder(ctx, string(xmlData), ins.Data.JobName, ins.Data.Folder)
 	if err != nil {
-		s.log.Errorf("jenkins CreateJobInFolder error：%s,   job名称：%s", err, ins.Data.JobName)
+		//s.log.Errorf("jenkins CreateJobInFolder error：%s,   job名称：%s", err, ins.Data.JobName)
 		return nil, exception.NewInternalServerError("Job CreateJobInFolder error, %s  JobName: %s", err, ins.Data.JobName)
 	}
-	s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, job.GetName(), ins.Data.Folder)
+	//s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, job.GetName(), ins.Data.Folder)
 	return ins, nil
 }
 
 // envDecision jenkins 环境变量判定连接
-func (s *service) envDecision(ctx context.Context, env task.JenkinsEnv) (*gojenkins.Jenkins, error) {
+func envDecision(ctx context.Context, env task.JenkinsEnv, conf *conf.Config) (*gojenkins.Jenkins, error) {
 	switch env {
 	case task.JenkinsEnv_DEV:
-		jenkins, err := task.ConnectJenkins(ctx, s.conf.Jenkins.DevEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)
+		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.DevEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
 		if err != nil {
 			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 		}
 		return jenkins, nil
 	case task.JenkinsEnv_TEST:
-		jenkins, err := task.ConnectJenkins(ctx, s.conf.Jenkins.TestEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)
+		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.TestEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
 		if err != nil {
 			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 		}
 		return jenkins, nil
 	case task.JenkinsEnv_UAT:
-		jenkins, err := task.ConnectJenkins(ctx, s.conf.Jenkins.UatEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)
+		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.UatEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
 		if err != nil {
 			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 		}
 		return jenkins, nil
 	case task.JenkinsEnv_LPT:
-		jenkins, err := task.ConnectJenkins(ctx, s.conf.Jenkins.LptEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)
+		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.LptEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
 		if err != nil {
 			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 		}
 		return jenkins, nil
 	case task.JenkinsEnv_PROD:
-		jenkins, err := task.ConnectJenkins(ctx, s.conf.Jenkins.ProdEndpoints, s.conf.Jenkins.User, s.conf.Jenkins.Password)
+		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.ProdEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
 		if err != nil {
 			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 		}
@@ -100,12 +101,13 @@ func (s *service) envDecision(ctx context.Context, env task.JenkinsEnv) (*gojenk
 }
 
 // describeJob 查看job信息
-func (s *service) describeJob(ctx context.Context, req *task.DescribeTaskRequest, jenkins *gojenkins.Jenkins) (*task.Task, error) {
-	return s.getJobConfig(ctx, req, jenkins)
+func describeJob(ctx context.Context, req *task.DescribeTaskRequest, jenkins *gojenkins.Jenkins) (*task.Task, error) {
+	return getJobConfig(ctx, req, jenkins)
 }
 
-func (s *service) getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *gojenkins.Jenkins) (*task.Task, error) {
-	ins := new(task.Task)
+func getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *gojenkins.Jenkins) (*task.Task, error) {
+	//ins := task.NewDescribeTaskRequest(req)
+	ins := task.NewDefaultTask()
 	job, err := jenkins.GetJob(ctx, req.Jobname)
 	if err != nil {
 		return nil, exception.NewInternalServerError("validate create task error, %s", err)
@@ -118,14 +120,10 @@ func (s *service) getJobConfig(ctx context.Context, req *task.DescribeTaskReques
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
 	data := new(Project)
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
-		s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
 	}
-	s.log.Debug(data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL)
-	s.log.Debug(data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch)
-	s.log.Debug(data.Builders.HudsonTasksShell.Command)
-	s.log.Debug(data.Description)
-	ins.Data.GitUrl = fmt.Sprintln(data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL)
+	ins.Data.GitUrl = data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
 	ins.Data.Branch = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
 	ins.Data.Buildeshell = data.Builders.HudsonTasksShell.Command
 	ins.Data.Description = data.Description

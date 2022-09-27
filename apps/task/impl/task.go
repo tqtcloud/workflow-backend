@@ -10,36 +10,43 @@ import (
 func (s *service) CreateTask(ctx context.Context, req *task.CreateTaskRequest) (*task.Task, error) {
 	ins, err := task.NewTask(req)
 	if err != nil {
+		s.log.Errorf("validate create task error, %s", err)
 		return nil, exception.NewBadRequest("validate create task error, %s", err)
 	}
 
 	switch ins.Data.Env {
 	case task.JenkinsEnv_DEV:
-		ins, err = s.createJob(ctx, ins, task.JenkinsEnv_DEV)
+		ins, err = createJob(ctx, ins, task.JenkinsEnv_DEV, s.conf)
 		if err != nil {
+			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_TEST:
-		ins, err = s.createJob(ctx, ins, task.JenkinsEnv_TEST)
+		ins, err = createJob(ctx, ins, task.JenkinsEnv_TEST, s.conf)
 		if err != nil {
+			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_UAT:
-		ins, err = s.createJob(ctx, ins, task.JenkinsEnv_UAT)
+		ins, err = createJob(ctx, ins, task.JenkinsEnv_UAT, s.conf)
 		if err != nil {
+			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_LPT:
-		ins, err = s.createJob(ctx, ins, task.JenkinsEnv_LPT)
+		ins, err = createJob(ctx, ins, task.JenkinsEnv_LPT, s.conf)
 		if err != nil {
+			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_PROD:
-		ins, err = s.createJob(ctx, ins, task.JenkinsEnv_PROD)
+		ins, err = createJob(ctx, ins, task.JenkinsEnv_PROD, s.conf)
 		if err != nil {
+			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	default:
+		s.log.Errorf("Request JenkinsEnv  error, %s", ins.Data.Env)
 		return nil, exception.NewBadRequest("Request JenkinsEnv  error,%s  ", ins.Data.Env)
 	}
 	//if err := s.save(ctx, ins); err != nil {
@@ -102,17 +109,19 @@ func (s *service) CopyTask(ctx context.Context, req *task.CreateTaskRequest) (*t
 
 func (s *service) DescribeTask(ctx context.Context, req *task.DescribeTaskRequest) (*task.Task, error) {
 	//return s.get(ctx, req.Id)
-	jenkins, err := s.envDecision(ctx, req.Env)
+	jenkins, err := envDecision(ctx, req.Env, s.conf)
 	if err != nil {
-		return nil, exception.NewBadRequest("validate create task error, %s", err)
+		s.log.Errorf("envDecision error, %s", err)
+		return nil, exception.NewBadRequest("envDecision error, %s", err)
 	}
-	ins, err := s.describeJob(ctx, req, jenkins)
+	ins, err := describeJob(ctx, req, jenkins)
 	if err != nil {
 		return nil, exception.NewBadRequest("describe  Job error, %s", err)
 	}
 	//if err := s.save(ctx, ins); err != nil {
 	//	return nil, err
 	//}
+	s.log.Infof("DescribeTask %s ", ins)
 	return ins, nil
 }
 
@@ -120,7 +129,6 @@ func (s *service) QueryTask(ctx context.Context, req *task.QueryTaskRequest) (*t
 	//query := newQueryTaskRequest(req)
 	//return s.query(ctx, query)
 	return nil, nil
-
 }
 
 func (s *service) UpdateTask(ctx context.Context, req *task.UpdateTaskRequest) (*task.Task, error) {
