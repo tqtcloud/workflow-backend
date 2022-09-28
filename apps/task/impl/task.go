@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"github.com/bndr/gojenkins"
 	"github.com/infraboard/mcube/exception"
 	"github.com/tqtcloud/workflow-backend/apps/task"
@@ -162,15 +163,21 @@ func (s *service) UpdateTask(ctx context.Context, req *task.UpdateTaskRequest) (
 }
 
 func (s *service) DeleteTask(ctx context.Context, req *task.DeleteTaskRequest) (*task.Task, error) {
-	//ins, err := s.DescribeTask(ctx, task.NewDescribeTaskRequest(req.Id))
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
+	ins, err := s.DescribeTask(ctx, task.NewDescribeTaskRequest(req.Env, req.Folder, req.Jobname))
+	if err != nil {
+		return nil, err
+	}
 	//if err := s.deleteTask(ctx, ins); err != nil {
 	//	return nil, err
 	//}
-	//
-	//return ins, nil
-	return nil, nil
+	env, _ := task.ParseJenkinsEnvFromString(req.Env)
+	jenins, err := envDecision(ctx, env, s.conf)
+	if err != nil {
+		return nil, fmt.Errorf("删除job时连接 jenkins 失败: %s", err)
+	}
+	if err = delJob(ctx, req, jenins); err != nil {
+		return nil, fmt.Errorf("删除job 失败: %s", err)
+	}
+	s.log.Infof("job 删除成功：%s", ins)
+	return ins, nil
 }

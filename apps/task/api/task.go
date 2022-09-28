@@ -52,7 +52,7 @@ func (h *handler) CopyTask(r *restful.Request, w *restful.Response) {
 //}
 //
 func (h *handler) DescribeTask(r *restful.Request, w *restful.Response) {
-	req := task.NewDescribeTaskRequest(r.PathParameter("jobname"), r.PathParameter("env"))
+	req := task.NewDescribeTaskRequest(r.PathParameter("env"), r.PathParameter("folder"), r.PathParameter("jobname"))
 	ins, err := h.service.DescribeTask(r.Request.Context(), req)
 	if err != nil {
 		response.Failed(w.ResponseWriter, err)
@@ -95,12 +95,12 @@ func (h *handler) DescribeTask(r *restful.Request, w *restful.Response) {
 //	response.Success(w.ResponseWriter, set)
 //}
 //
-//func (h *handler) DeleteTask(r *restful.Request, w *restful.Response) {
-//	req := task.NewDeleteTaskRequestWithID(r.PathParameter("id"))
-//	set, err := h.service.DeleteTask(r.Request.Context(), req)
-//	if err != nil {
-//		response.Failed(w.ResponseWriter, err)
-//		return
-//	}
-//	response.Success(w.ResponseWriter, set)
-//}
+func (h *handler) DeleteTask(r *restful.Request, w *restful.Response) {
+	req := task.NewDeleteTaskRequestWithID(r.PathParameter("env"), r.PathParameter("folder"), r.PathParameter("jobname"))
+	set, err := h.service.DeleteTask(r.Request.Context(), req)
+	if err != nil {
+		response.Failed(w.ResponseWriter, err)
+		return
+	}
+	response.Success(w.ResponseWriter, set)
+}

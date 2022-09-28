@@ -1,6 +1,6 @@
 # jenkins API 模块
 
-## create opst
+## Create Job    Post
 
 ### 请求：
 
@@ -71,3 +71,120 @@
 }
 ```
 
+## Get Job   Get
+
+### 请求：
+
+```bash
+# 访问地址：/workflow-backend/api/v1/task/{env}/{folder}/{jobname}
+例如：
+http://127.0.0.1:8050/workflow-backend/api/v1/task/dev/test2/apideljob111
+```
+
+### 字段解释
+
+| 参数名  |  类型  |               描述               |  默认值  | 是否必须 |
+| :-----: | :----: | :------------------------------: | :------: | :------: |
+| jobname | string |         jenkins job 名称         | 默认为空 |   must   |
+|   env   | string | Jenkins环境：dev,qa,uat,lpt,prod | 默认为空 |   must   |
+| folder  | string |          jenkins 文件夹          | 默认为空 |   must   |
+
+> **注意：**
+>
+> 如果你不写放回 404 
+>
+> 删除 jenkins 根的job  {folder} 置 `root`
+>
+> ```bash
+> http://127.0.0.1:8050/workflow-backend/api/v1/task/dev/root/apideljob111
+> ```
+
+### 正常返回
+
+```json
+{
+    "code": 0,
+    "data": {
+        "id": "9cf81a77-eea0-41dc-8519-afeecfbf065d",
+        "create_at": 1664359420914578,
+        "update_at": 0,
+        "update_by": "",
+        "data": {
+            "create_by": "",
+            "jobName": "test2/job/apijob0927",
+            "Env": "DEV",
+            "gitUrl": "https://gitlab.leyaoyao.com/iot/gateway/netty-external.git",
+            "branch": "sit",
+            "appName": "apijob0927",
+            "description": "api调用测试job，请勿启动运行",
+            "buildeshell": "echo 1111",
+            "buildenv": "",
+            "folder": "test2",
+            "oldjobName": "",
+            "newjobName": "",
+            "templateName": ""
+        }
+    }
+}
+```
+
+
+
+## Delete  Job Get
+
+### 请求：
+
+```bash
+# 访问地址：/workflow-backend/api/v1/task/{env}/{folder}/{jobname}
+例如：
+http://127.0.0.1:8050/workflow-backend/api/v1/task/dev/test2/apideljob111
+```
+
+### 字段解释
+
+| 参数名  |  类型  |               描述               |  默认值  | 是否必须 |
+| :-----: | :----: | :------------------------------: | :------: | :------: |
+| jobname | string |         jenkins job 名称         | 默认为空 |   must   |
+|   env   | string | Jenkins环境：dev,qa,uat,lpt,prod | 默认为空 |   must   |
+| folder  | string |          jenkins 文件夹          | 默认为空 |   must   |
+
+> **注意：**
+>
+> 如果你不写放回 404 
+>
+> 删除 jenkins 根的job  {folder} 置 `root`
+>
+> ```bash
+> http://127.0.0.1:8050/workflow-backend/api/v1/task/dev/root/apideljob111
+> ```
+
+### 正常返回
+
+```json
+{
+    "code": 0,
+    "data": {
+        "id": "9cf81a77-eea0-41dc-8519-afeecfbf065d",
+        "create_at": 1664359420914578,
+        "update_at": 0,
+        "update_by": "",
+        "data": {
+            "create_by": "",
+            "jobName": "test2/job/apijob0927",
+            "Env": "DEV",
+            "gitUrl": "https://gitlab.leyaoyao.com/iot/gateway/netty-external.git",
+            "branch": "sit",
+            "appName": "apijob0927",
+            "description": "api调用测试job，请勿启动运行",
+            "buildeshell": "echo 1111",
+            "buildenv": "",
+            "folder": "test2",
+            "oldjobName": "",
+            "newjobName": "",
+            "templateName": ""
+        }
+    }
+}
+```
+
+## Update  Job  Post

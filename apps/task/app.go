@@ -72,7 +72,7 @@ func (i *Task) Patch(req *UpdateTaskRequest) error {
 	return mergo.MergeWithOverwrite(i.Data, req.Data)
 }
 
-func NewDescribeTaskRequest(jobname, env string) *DescribeTaskRequest {
+func NewDescribeTaskRequest(env, folder, jobname string) *DescribeTaskRequest {
 	jenkinsEnv, err := ParseJenkinsEnvFromString(env)
 	if err != nil {
 		fmt.Printf("ParseJenkinsEnvFromString Error: %s\n", err)
@@ -80,6 +80,7 @@ func NewDescribeTaskRequest(jobname, env string) *DescribeTaskRequest {
 	return &DescribeTaskRequest{
 		Jobname: jobname,
 		Env:     jenkinsEnv,
+		Folder:  folder,
 	}
 }
 
@@ -116,9 +117,11 @@ func NewPatchTaskRequest(id string) *UpdateTaskRequest {
 	}
 }
 
-func NewDeleteTaskRequestWithID(id string) *DeleteTaskRequest {
+func NewDeleteTaskRequestWithID(env, folder, jobname string) *DeleteTaskRequest {
 	return &DeleteTaskRequest{
-		Id: id,
+		Env:     env,
+		Folder:  folder,
+		Jobname: jobname,
 	}
 }
 

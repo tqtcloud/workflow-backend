@@ -9,6 +9,7 @@ import (
 	"github.com/tqtcloud/workflow-backend/apps/task"
 	"github.com/tqtcloud/workflow-backend/conf"
 	"strings"
+	"time"
 )
 
 // createJob 创建job逻辑实现
@@ -100,6 +101,17 @@ func envDecision(ctx context.Context, env task.JenkinsEnv, conf *conf.Config) (*
 	}
 }
 
+// jobNameJoin 拼接逻辑判断，如果是jenkins 根下的目录直接返回，如果是在文件夹下的拼接后返回
+func jobNameJoin(req *task.DescribeTaskRequest) string {
+	var jobName string
+	if req.Folder == "root" {
+		jobName = req.Jobname
+	} else {
+		jobName = req.Folder + "/" + "job" + "/" + req.Jobname
+	}
+	return jobName
+}
+
 // describeJob 查看job信息
 func describeJob(ctx context.Context, req *task.DescribeTaskRequest, jenkins *gojenkins.Jenkins) (*task.Task, error) {
 	return getJobConfig(ctx, req, jenkins)
@@ -108,13 +120,18 @@ func describeJob(ctx context.Context, req *task.DescribeTaskRequest, jenkins *go
 func getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *gojenkins.Jenkins) (*task.Task, error) {
 	//ins := task.NewDescribeTaskRequest(req)
 	ins := task.NewDefaultTask()
-	job, err := jenkins.GetJob(ctx, req.Jobname)
+
+	// 在此处拼接job名称  例如：test2/job/apijob0927/
+	jobName := jobNameJoin(req)
+
+	fmt.Printf("请求job名称：%s \n", jobName)
+	job, err := jenkins.GetJob(ctx, jobName)
 	if err != nil {
-		return nil, exception.NewInternalServerError("validate create task error, %s", err)
+		return nil, exception.NewInternalServerError("validate create func getJobConfig error, %s", err)
 	}
 	config, err := job.GetConfig(ctx)
 	if err != nil {
-		return nil, exception.NewInternalServerError("validate create task error, %s", err)
+		return nil, exception.NewInternalServerError("job  GetConfig error, %s", err)
 	}
 	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
@@ -129,5 +146,19 @@ func getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *g
 	ins.Data.Description = data.Description
 	// appname
 	ins.Data.AppName = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue
+	ins.Data.Folder = req.Folder
+	ins.Data.Env = req.Env
+	ins.Data.JobName = jobName
+	ins.CreateAt = time.Now().UnixMicro()
+	ins.Id = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Uuid
 	return ins, nil
+}
+
+func delJob(ctx context.Context, req *task.DeleteTaskRequest, jenkins *gojenkins.Jenkins) error {
+	jobName := jobNameJoin(task.NewDescribeTaskRequest(req.Env, req.Folder, req.Jobname))
+	yes, err := jenkins.DeleteJob(ctx, jobName)
+	if yes == true && err != nil {
+		return nil
+	}
+	return err
 }

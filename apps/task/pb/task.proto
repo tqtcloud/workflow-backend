@@ -149,7 +149,9 @@ message DescribeTaskRequest {
     // jenkins 环境
     // @gotags: json:"Env"   validate:"required"
     JenkinsEnv env =2;
-
+    // jenkins 文件夹
+    // @gotags: json:"folder" bson:"folder"
+    string folder =3;
 }
 
 message UpdateTaskRequest {
@@ -171,7 +173,13 @@ message UpdateTaskRequest {
 }
 
 message DeleteTaskRequest {
-    // Task id
-    // @gotags: json:"id"
-    string id = 1;
+    // jobname id
+    // @gotags: json:"jobname"
+    string jobname = 1;
+    // jenkins 环境
+    // @gotags: json:"Env"
+    string env =2;
+    // jenkins 文件夹
+    // @gotags: json:"folder"
+    string folder =3;
 }

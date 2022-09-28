@@ -38,13 +38,13 @@ func (h *handler) Registry(ws *restful.WebService) {
 	tags := []string{"tasks"}
 
 	ws.Route(ws.POST("").To(h.CreateTask).
-		Doc("create a task").
+		Doc("create a jenkins job").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Reads(task.CreateTaskRequest{}).
 		Writes(response.NewData(task.Task{})))
 
 	ws.Route(ws.PUT("").To(h.CopyTask).
-		Doc("CopyTask a task").
+		Doc("CopyTask a  jenkins job").
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Reads(task.CreateTaskRequest{}).
 		Writes(response.NewData(task.Task{})))
@@ -56,9 +56,10 @@ func (h *handler) Registry(ws *restful.WebService) {
 	//	Writes(response.NewData(task.TaskSet{})).
 	//	Returns(200, "OK", task.TaskSet{}))
 	//
-	ws.Route(ws.GET("/{env}/{jobname}").To(h.DescribeTask).
-		Doc("get a task").
+	ws.Route(ws.GET("/{env}/{folder}/{jobname}").To(h.DescribeTask).
+		Doc("get jenkins job config ").
 		Param(ws.PathParameter("env", "identifier of the jenkins env").DataType("string").DefaultValue("dev")).
+		Param(ws.PathParameter("folder", "identifier of the folder").DataType("string").DefaultValue("")).
 		Param(ws.PathParameter("jobname", "identifier of the jobname").DataType("string").DefaultValue("jobtemplate/job/go-backend-template")).
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Writes(response.NewData(task.Task{})).
@@ -77,10 +78,12 @@ func (h *handler) Registry(ws *restful.WebService) {
 	//	Metadata(restfulspec.KeyOpenAPITags, tags).
 	//	Reads(task.CreateTaskRequest{}))
 	//
-	//ws.Route(ws.DELETE("/{id}").To(h.DeleteTask).
-	//	Doc("delete a task").
-	//	Metadata(restfulspec.KeyOpenAPITags, tags).
-	//	Param(ws.PathParameter("id", "identifier of the task").DataType("string")))
+	ws.Route(ws.DELETE("/{env}/{folder}/{jobname}").To(h.DeleteTask).
+		Doc("delete jenkins job").
+		Param(ws.PathParameter("env", "identifier of the jenkins env").DataType("string")).
+		Param(ws.PathParameter("folder", "identifier of the folder").DataType("string")).
+		Param(ws.PathParameter("jobname", "identifier of the jobname").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags))
 }
 
 func init() {
