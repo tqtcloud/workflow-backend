@@ -13,8 +13,8 @@ import (
 )
 
 // createJob 创建job逻辑实现
-func createJob(ctx context.Context, ins *task.Task, env task.JenkinsEnv, conf *conf.Config) (*task.Task, error) {
-	jenkins, err := envDecision(ctx, env, conf)
+func createJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Task, error) {
+	jenkins, err := envDecision(ctx, ins.Data.Env, conf)
 	if err != nil {
 		return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 	}
@@ -97,7 +97,7 @@ func envDecision(ctx context.Context, env task.JenkinsEnv, conf *conf.Config) (*
 		}
 		return jenkins, nil
 	default:
-		return nil, fmt.Errorf("环境错误: %s", "dev/test/uat/lpt/prod")
+		return nil, fmt.Errorf("环境错误: %s; 您的：%s", "dev/test/uat/lpt/prod", env)
 	}
 }
 
@@ -161,4 +161,63 @@ func delJob(ctx context.Context, req *task.DeleteTaskRequest, jenkins *gojenkins
 		return nil
 	}
 	return err
+}
+
+func updateJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Task, error) {
+	jenkins, err := envDecision(ctx, ins.Data.Env, conf)
+	if err != nil {
+		return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
+	}
+	// 前端定义好下拉列表在此处进行模板的选择，后端Java? go? nodejs?
+	// jobtemplate/job/go-backend-template  go 模板名
+
+	jobName := jobNameJoin(task.NewDescribeTaskRequest(ins.Data.Env.String(), ins.Data.Folder, ins.Data.JobName))
+	job, err := jenkins.GetJob(ctx, jobName)
+	if err != nil {
+		return nil, exception.NewInternalServerError("Jenkins GetJob error, %s", err)
+	}
+	// job.UpdateConfig()
+	// jenkins.UpdateJob()
+	config, _ := job.GetConfig(ctx)
+
+	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
+	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
+
+	//s.log.Debug(config)
+	data := Project{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
+	}
+
+	if ins.Data.GitUrl != "" {
+		data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	}
+	if ins.Data.Branch != "" {
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	}
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	if ins.Data.Description != "" {
+		data.Description = ins.Data.Description
+	}
+	if ins.Data.AppName != "" {
+		// appname
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue = ins.Data.AppName
+	}
+
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, exception.NewInternalServerError("Job config MarshalIndent error, %s", err)
+	}
+
+	if err = job.UpdateConfig(ctx, string(xmlData)); err != nil {
+		//s.log.Errorf("jenkins CreateJobInFolder error：%s,   job名称：%s", err, ins.Data.JobName)
+		return nil, exception.NewInternalServerError("Job UpdateConfig error, %s  JobName: %s", err, ins.Data.JobName)
+	}
+
+	//s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, job.GetName(), ins.Data.Folder)
+	return ins, nil
 }

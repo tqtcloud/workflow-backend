@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bndr/gojenkins"
 	"github.com/infraboard/mcube/exception"
+	"github.com/infraboard/mcube/pb/request"
 	"github.com/tqtcloud/workflow-backend/apps/task"
 )
 
@@ -17,31 +18,31 @@ func (s *service) CreateTask(ctx context.Context, req *task.CreateTaskRequest) (
 
 	switch ins.Data.Env {
 	case task.JenkinsEnv_DEV:
-		ins, err = createJob(ctx, ins, task.JenkinsEnv_DEV, s.conf)
+		ins, err = createJob(ctx, ins, s.conf)
 		if err != nil {
 			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_TEST:
-		ins, err = createJob(ctx, ins, task.JenkinsEnv_TEST, s.conf)
+		ins, err = createJob(ctx, ins, s.conf)
 		if err != nil {
 			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_UAT:
-		ins, err = createJob(ctx, ins, task.JenkinsEnv_UAT, s.conf)
+		ins, err = createJob(ctx, ins, s.conf)
 		if err != nil {
 			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_LPT:
-		ins, err = createJob(ctx, ins, task.JenkinsEnv_LPT, s.conf)
+		ins, err = createJob(ctx, ins, s.conf)
 		if err != nil {
 			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
 		}
 	case task.JenkinsEnv_PROD:
-		ins, err = createJob(ctx, ins, task.JenkinsEnv_PROD, s.conf)
+		ins, err = createJob(ctx, ins, s.conf)
 		if err != nil {
 			s.log.Errorf("validate create task error, %s", err)
 			return nil, exception.NewInternalServerError("validate create task error, %s", err)
@@ -110,6 +111,7 @@ func (s *service) CopyTask(ctx context.Context, req *task.CreateTaskRequest) (*t
 
 func (s *service) DescribeTask(ctx context.Context, req *task.DescribeTaskRequest) (*task.Task, error) {
 	//return s.get(ctx, req.Id)
+	s.log.Debugf("DescribeTask req :%s ", req)
 	jenkins, err := envDecision(ctx, req.Env, s.conf)
 	if err != nil {
 		s.log.Errorf("envDecision error, %s", err)
@@ -133,32 +135,32 @@ func (s *service) QueryTask(ctx context.Context, req *task.QueryTaskRequest) (*t
 }
 
 func (s *service) UpdateTask(ctx context.Context, req *task.UpdateTaskRequest) (*task.Task, error) {
-	//ins, err := s.DescribeTask(ctx, task.NewDescribeTaskRequest(req.Id))
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//switch req.UpdateMode {
-	//case request.UpdateMode_PUT:
-	//	ins.Update(req)
-	//case request.UpdateMode_PATCH:
-	//	err := ins.Patch(req)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//}
-	//
-	//// 校验更新后数据合法性
-	//if err := ins.Data.Validate(); err != nil {
-	//	return nil, err
-	//}
-	//
+	s.log.Debug("UpdateTask Req : ", req.Data)
+	ins, err := s.DescribeTask(ctx, task.NewDescribeTaskRequest(req.Data.Env.String(), req.Data.Folder, req.Data.JobName))
+	if err != nil {
+		return nil, err
+	}
+
+	switch req.UpdateMode {
+	// 全量更新
+	case request.UpdateMode_PUT:
+		ins = ins.Update(req)
+	// 局部更新资源
+	case request.UpdateMode_PATCH:
+		ins = ins.Patch(req)
+	}
+
+	// 校验更新后数据合法性
+	if err := ins.Data.Validate(); err != nil {
+		return nil, err
+	}
+	updateIns, err := updateJob(ctx, ins, s.conf)
 	//if err := s.update(ctx, ins); err != nil {
 	//	return nil, err
 	//}
 
 	//return ins, nil
-	return nil, nil
+	return updateIns, nil
 
 }
 

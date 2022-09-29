@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/imdario/mergo"
 	"github.com/infraboard/mcube/http/request"
 	pb_request "github.com/infraboard/mcube/pb/request"
 	"github.com/rs/xid"
@@ -23,8 +22,17 @@ var (
 	validate = validator.New()
 )
 
-func NewCreateTaskRequest() *CreateTaskRequest {
+func NewDefaultCreateTaskRequest() *CreateTaskRequest {
 	return &CreateTaskRequest{}
+}
+
+func NewCreateTaskRequest(env, folder, jobname string) *CreateTaskRequest {
+	Envs, _ := ParseJenkinsEnvFromString(env)
+	return &CreateTaskRequest{
+		Env:     Envs,
+		Folder:  folder,
+		JobName: jobname,
+	}
 }
 
 func NewTask(req *CreateTaskRequest) (*Task, error) {
@@ -60,22 +68,24 @@ func NewDefaultTask() *Task {
 	}
 }
 
-func (i *Task) Update(req *UpdateTaskRequest) {
+func (i *Task) Update(req *UpdateTaskRequest) *Task {
 	i.UpdateAt = time.Now().UnixMicro()
 	i.UpdateBy = req.UpdateBy
 	i.Data = req.Data
+	return i
 }
 
-func (i *Task) Patch(req *UpdateTaskRequest) error {
+func (i *Task) Patch(req *UpdateTaskRequest) *Task {
 	i.UpdateAt = time.Now().UnixMicro()
 	i.UpdateBy = req.UpdateBy
-	return mergo.MergeWithOverwrite(i.Data, req.Data)
+	i.Data = req.Data
+	return i
 }
 
 func NewDescribeTaskRequest(env, folder, jobname string) *DescribeTaskRequest {
 	jenkinsEnv, err := ParseJenkinsEnvFromString(env)
 	if err != nil {
-		fmt.Printf("ParseJenkinsEnvFromString Error: %s\n", err)
+		fmt.Printf("ParseJenkinsEnvFromString Error: %s \n", err)
 	}
 	return &DescribeTaskRequest{
 		Jobname: jobname,
@@ -99,21 +109,19 @@ func NewQueryTaskRequestFromHTTP(r *http.Request) *QueryTaskRequest {
 	}
 }
 
-func NewPutTaskRequest(id string) *UpdateTaskRequest {
+func NewPutTaskRequest(env, folder, jobname string) *UpdateTaskRequest {
 	return &UpdateTaskRequest{
-		Id:         id,
 		UpdateMode: pb_request.UpdateMode_PUT,
 		UpdateAt:   time.Now().UnixMicro(),
-		Data:       NewCreateTaskRequest(),
+		Data:       NewCreateTaskRequest(env, folder, jobname),
 	}
 }
 
-func NewPatchTaskRequest(id string) *UpdateTaskRequest {
+func NewPatchTaskRequest(env, folder, jobname string) *UpdateTaskRequest {
 	return &UpdateTaskRequest{
-		Id:         id,
 		UpdateMode: pb_request.UpdateMode_PATCH,
 		UpdateAt:   time.Now().UnixMicro(),
-		Data:       NewCreateTaskRequest(),
+		Data:       NewCreateTaskRequest(env, folder, jobname),
 	}
 }
 

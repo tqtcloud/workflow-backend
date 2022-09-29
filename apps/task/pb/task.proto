@@ -36,7 +36,7 @@ message Task {
 
 enum JenkinsEnv {
     // jenkins 对应环境  开发 测试 预发 压测 正式
-    ENV = 0;
+    ENVs = 0;
     DEV = 1;
     TEST = 2;
     UAT = 3;
@@ -155,10 +155,7 @@ message DescribeTaskRequest {
 }
 
 message UpdateTaskRequest {
-    // Task id
-    // @gotags: json:"id"
-    string id = 1;
-    // 更新模式
+    // 更新模式 PUT 全量更新  patch 更新指定字段
     // @gotags: json:"update_mode"
     infraboard.mcube.request.UpdateMode update_mode = 2;
     // 更新人
@@ -167,7 +164,7 @@ message UpdateTaskRequest {
     // 更新时间
     // @gotags: json:"update_at"
     int64 update_at = 4;
-    // 更新的书本信息
+    // 更新jenkins job 信息
     // @gotags: json:"data"
     CreateTaskRequest data = 5;
 }

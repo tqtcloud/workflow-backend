@@ -65,19 +65,23 @@ func (h *handler) Registry(ws *restful.WebService) {
 		Writes(response.NewData(task.Task{})).
 		Returns(200, "OK", response.NewData(task.Task{})).
 		Returns(404, "Not Found", nil))
-	//
-	//ws.Route(ws.PUT("/{id}").To(h.UpdateTask).
-	//	Doc("update a task").
-	//	Param(ws.PathParameter("id", "identifier of the task").DataType("string")).
-	//	Metadata(restfulspec.KeyOpenAPITags, tags).
-	//	Reads(task.CreateTaskRequest{}))
-	//
-	//ws.Route(ws.PATCH("/{id}").To(h.PatchTask).
-	//	Doc("patch a task").
-	//	Param(ws.PathParameter("id", "identifier of the task").DataType("string")).
-	//	Metadata(restfulspec.KeyOpenAPITags, tags).
-	//	Reads(task.CreateTaskRequest{}))
-	//
+
+	ws.Route(ws.PUT("/{env}/{folder}/{jobname}").To(h.UpdateTask).
+		Doc("update jenkins job").
+		Param(ws.PathParameter("env", "identifier of the jenkins env").DataType("string")).
+		Param(ws.PathParameter("folder", "identifier of the folder").DataType("string")).
+		Param(ws.PathParameter("jobname", "identifier of the jobname").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Reads(task.CreateTaskRequest{}))
+
+	ws.Route(ws.PATCH("/{env}/{folder}/{jobname}").To(h.PatchTask).
+		Doc("patch jenkins job").
+		Param(ws.PathParameter("env", "identifier of the jenkins env").DataType("string")).
+		Param(ws.PathParameter("folder", "identifier of the folder").DataType("string")).
+		Param(ws.PathParameter("jobname", "identifier of the jobname").DataType("string")).
+		Metadata(restfulspec.KeyOpenAPITags, tags).
+		Reads(task.CreateTaskRequest{}))
+
 	ws.Route(ws.DELETE("/{env}/{folder}/{jobname}").To(h.DeleteTask).
 		Doc("delete jenkins job").
 		Param(ws.PathParameter("env", "identifier of the jenkins env").DataType("string")).
