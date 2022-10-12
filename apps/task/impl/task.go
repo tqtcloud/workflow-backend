@@ -54,6 +54,7 @@ func (s *service) CreateTask(ctx context.Context, req *task.CreateTaskRequest) (
 	//if err := s.save(ctx, ins); err != nil {
 	//	return nil, err
 	//}
+	s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, ins.Data.JobName, ins.Data.Folder)
 	return ins, nil
 }
 
