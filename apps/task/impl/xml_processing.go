@@ -5,8 +5,35 @@ import (
 	"fmt"
 	"github.com/tqtcloud/workflow-backend/apps/task"
 )
+
+func deployXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := DeployProject{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
+	}
+
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName
+	// APP_TYPE
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppType
+	// APP_ENV
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.Env.String()
+
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
+
 // go 模板函数处理
-func goXmlProc(ins *task.Task,config string) ([]byte,error) {
+func goXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := Project{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
@@ -31,7 +58,7 @@ func goXmlProc(ins *task.Task,config string) ([]byte,error) {
 }
 
 // java 模板函数处理
-func javaXmlProc(ins *task.Task,config string) ([]byte,error) {
+func javaXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := Maven2Moduleset{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
@@ -46,7 +73,7 @@ func javaXmlProc(ins *task.Task,config string) ([]byte,error) {
 	data.Description = ins.Data.Description
 
 	//通过环境对docker name 添加尾缀
-	imageName ,_ := imageTail(ins)
+	imageName, _ := imageTail(ins)
 	// CONTAINER_NAME
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = imageName
 	// appname
@@ -61,16 +88,17 @@ func javaXmlProc(ins *task.Task,config string) ([]byte,error) {
 	}
 	return xmlData, nil
 }
+
 // imageTail docker name 尾缀添加，为了相应后端的镜像构建：bigdata_server_dev
-func imageTail(ins *task.Task) (string,error)  {
+func imageTail(ins *task.Task) (string, error) {
 	switch ins.Data.Env {
 	case task.JenkinsEnv_DEV:
-		return ins.Data.AppName+"_dev",nil
+		return ins.Data.AppName + "_dev", nil
 	case task.JenkinsEnv_TEST:
-		return ins.Data.AppName+"_sit",nil
+		return ins.Data.AppName + "_sit", nil
 	case task.JenkinsEnv_UAT:
-		return ins.Data.AppName+"_uat",nil
+		return ins.Data.AppName + "_uat", nil
 	default:
-		return "",fmt.Errorf("imageTail  %s  does not exist ",ins.Data.Env)
+		return "", fmt.Errorf("imageTail  %s  does not exist ", ins.Data.Env)
 	}
 }

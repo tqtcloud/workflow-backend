@@ -14,18 +14,21 @@ import (
 
 // templateDetermine 后端模板判定，确认是什么语言返回什么语言的xml模板
 // 不同模板之间的结构体不一样，所以需要在此处进行更改
-func templateDetermine(ins *task.Task ,config string) ([]byte,error)  {
+func templateDetermine(ins *task.Task, config string) ([]byte, error) {
 	switch ins.Data.TemplateName {
+	case "jobtemplate/job/deploy-template":
+		return deployXmlProc(ins, config)
 	case "jobtemplate/job/go-backend-template":
-		return goXmlProc(ins,config)
+		return goXmlProc(ins, config)
 	case "jobtemplate/job/java-backend-template":
-		return javaXmlProc(ins,config)
+		return javaXmlProc(ins, config)
 	case "jobtemplate/job/nodejs-backend-template":
-		return nil,nil
+		return nil, nil
 	default:
-		return nil,fmt.Errorf("TemplateName  %s  does not exist ",ins.Data.TemplateName)
+		return nil, fmt.Errorf("TemplateName  %s  does not exist ", ins.Data.TemplateName)
 	}
 }
+
 // createJob 创建job逻辑实现
 func createJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Task, error) {
 	jenkins, err := envDecision(ctx, ins.Data.Env, conf)
@@ -47,7 +50,7 @@ func createJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Ta
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
 	//s.log.Debug(config)
 
-	xmlData,err := templateDetermine(ins,config)
+	xmlData, err := templateDetermine(ins, config)
 	if err != nil {
 		return nil, exception.NewInternalServerError("Job templateDetermine error, %s  JobName: %s", err, ins.Data.JobName)
 	}

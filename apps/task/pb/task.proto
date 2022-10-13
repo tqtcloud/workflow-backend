@@ -84,6 +84,9 @@ message CreateTaskRequest {
     // job 模板名，基于这个job获取xml config
     // @gotags: json:"templateName" bson:"templateName" validate:"required"
     string templateName = 14;
+    // delpoy 触发部署的 namespace 描述字段
+    // @gotags: json:"app_type" bson:"app_type" 
+    string app_type = 15;
 }
 
 message CopyTaskRequest {

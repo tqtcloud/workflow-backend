@@ -290,138 +290,70 @@ type Maven2Moduleset struct {
 	} `xml:"runPostStepsIfResult"`
 }
 
-
-
-//var metexml =`
-//<project>
-//<actions/>
-//<description/>
-//<keepDependencies>false</keepDependencies>
-//<properties>
-//<com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.12">
-//<gitLabConnection/>
-//</com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
-//<org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty plugin="gitlab-logo@1.0.3">
-//<repositoryName/>
-//</org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty>
-//<com.synopsys.arc.jenkinsci.plugins.jobrestrictions.jobs.JobRestrictionProperty plugin="job-restrictions@0.8"/>
-//<jenkins.model.BuildDiscarderProperty>
-//<strategy class="hudson.tasks.LogRotator">
-//<daysToKeep>-1</daysToKeep>
-//<numToKeep>4</numToKeep>
-//<artifactDaysToKeep>-1</artifactDaysToKeep>
-//<artifactNumToKeep>-1</artifactNumToKeep>
-//</strategy>
-//</jenkins.model.BuildDiscarderProperty>
-//<hudson.model.ParametersDefinitionProperty>
-//<parameterDefinitions>
-//<net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition plugin="git-parameter@0.9.11">
-//<name>branch</name>
-//<description/>
-//<uuid>c99fff32-d399-4022-a9c8-4a08cab81e5a</uuid>
-//<type>PT_BRANCH</type>
-//<branch>sit</branch>
-//<tagFilter>*</tagFilter>
-//<branchFilter>.*sit.*</branchFilter>
-//<sortMode>DESCENDING_SMART</sortMode>
-//<defaultValue>origin/sit</defaultValue>
-//<selectedValue>DEFAULT</selectedValue>
-//<quickFilterEnabled>true</quickFilterEnabled>
-//<listSize>20</listSize>
-//</net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition>
-//<hudson.model.StringParameterDefinition>
-//<name>CODE_MODULE</name>
-//<description/>
-//<defaultValue>ad_admin</defaultValue>
-//<trim>false</trim>
-//</hudson.model.StringParameterDefinition>
-//</parameterDefinitions>
-//</hudson.model.ParametersDefinitionProperty>
-//</properties>
-//<scm class="hudson.plugins.git.GitSCM" plugin="git@4.2.2">
-//<configVersion>2</configVersion>
-//<userRemoteConfigs>
-//<hudson.plugins.git.UserRemoteConfig>`
-//
-////`<url>https://gitlab.leyaoyao.com/front-end/project.git</url>`
-//
-//
-//var xml2 = `<credentialsId>4a2d7ab1-1fac-4788-833e-ff1b8b53d665</credentialsId>
-//</hudson.plugins.git.UserRemoteConfig>
-//</userRemoteConfigs>
-//<branches>
-//<hudson.plugins.git.BranchSpec>`
-//
-////<name>$branch</name>
-//
-//
-//var xml3 = `</hudson.plugins.git.BranchSpec>
-//</branches>
-//<doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-//<submoduleCfg class="list"/>
-//<extensions/>
-//</scm>
-//<assignedNode>Jenkins_Slave_192.168.101.71</assignedNode>
-//<canRoam>false</canRoam>
-//<disabled>false</disabled>
-//<blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
-//<blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-//<jdk>(System)</jdk>
-//<triggers/>
-//<concurrentBuild>false</concurrentBuild>
-//<builders>`
-//
-//var xml4shell = `<hudson.tasks.Shell>
-//<command>cd $CODE_MODULE rm -rf dist npm install --save-dev npm run-script build zip -r dist.zip dist</command>
-//</hudson.tasks.Shell>
-//<hudson.tasks.Shell>
-//<command>cp -r $CODE_MODULE/dist.zip .</command>
-//</hudson.tasks.Shell>`
-//
-//
-//</builders>
-//<publishers>
-//<jenkins.plugins.publish__over__ssh.BapSshPublisherPlugin plugin="publish-over-ssh@1.20.1">
-//<consolePrefix>SSH: </consolePrefix>
-//<delegate plugin="publish-over@0.22">
-//<publishers>
-//<jenkins.plugins.publish__over__ssh.BapSshPublisher plugin="publish-over-ssh@1.20.1">
-//<configName>192.168.101.6_Nginx</configName>
-//<verbose>false</verbose>
-//<transfers>
-//<jenkins.plugins.publish__over__ssh.BapSshTransfer>
-//<remoteDirectory/>
-//<sourceFiles>dist.zip</sourceFiles>
-//<excludes/>
-//<removePrefix/>
-//<remoteDirectorySDF>false</remoteDirectorySDF>
-//<flatten>false</flatten>
-//<cleanRemote>false</cleanRemote>
-//<noDefaultExcludes>false</noDefaultExcludes>
-//<makeEmptyDirs>false</makeEmptyDirs>
-//<patternSeparator>[, ]+</patternSeparator>
-//<execCommand>unzip dist.zip yes | cp -r dist/* /usr/local/nginx/sit/advert/ rm -rf dist*</execCommand>
-//<execTimeout>120000</execTimeout>
-//<usePty>false</usePty>
-//<useAgentForwarding>false</useAgentForwarding>
-//</jenkins.plugins.publish__over__ssh.BapSshTransfer>
-//</transfers>
-//<useWorkspaceInPromotion>false</useWorkspaceInPromotion>
-//<usePromotionTimestamp>false</usePromotionTimestamp>
-//</jenkins.plugins.publish__over__ssh.BapSshPublisher>
-//</publishers>
-//<continueOnError>false</continueOnError>
-//<failOnError>false</failOnError>
-//<alwaysPublishFromMaster>false</alwaysPublishFromMaster>
-//<hostConfigurationAccess class="jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin" reference="../.."/>
-//</delegate>
-//</jenkins.plugins.publish__over__ssh.BapSshPublisherPlugin>
-//</publishers>
-//<buildWrappers>
-//<hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.10"/>
-//<jenkins.plugins.nodejs.NodeJSBuildWrapper plugin="nodejs@1.3.3">
-//<nodeJSInstallationName>NodeJS10.6.2</nodeJSInstallationName>
-//<cacheLocationStrategy class="jenkins.plugins.nodejs.cache.DefaultCacheLocationLocator"/>
-//</jenkins.plugins.nodejs.NodeJSBuildWrapper>
-//</buildWrappers>
-//</project>
+type DeployProject struct {
+	XMLName          xml.Name `xml:"project"`
+	Text             string   `xml:",chardata"`
+	Description      string   `xml:"description"`
+	KeepDependencies string   `xml:"keepDependencies"`
+	Properties       struct {
+		Text                                                         string `xml:",chardata"`
+		ComDabsquaredGitlabjenkinsConnectionGitLabConnectionProperty struct {
+			Text             string `xml:",chardata"`
+			Plugin           string `xml:"plugin,attr"`
+			GitLabConnection string `xml:"gitLabConnection"`
+		} `xml:"com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty"`
+		OrgJenkinsciPluginsGitlablogoGitlabLogoProperty struct {
+			Text           string `xml:",chardata"`
+			Plugin         string `xml:"plugin,attr"`
+			RepositoryName string `xml:"repositoryName"`
+		} `xml:"org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty"`
+		ComSynopsysArcJenkinsciPluginsJobrestrictionsJobsJobRestrictionProperty struct {
+			Text   string `xml:",chardata"`
+			Plugin string `xml:"plugin,attr"`
+		} `xml:"com.synopsys.arc.jenkinsci.plugins.jobrestrictions.jobs.JobRestrictionProperty"`
+		JenkinsModelBuildDiscarderProperty struct {
+			Text     string `xml:",chardata"`
+			Strategy struct {
+				Text               string `xml:",chardata"`
+				Class              string `xml:"class,attr"`
+				DaysToKeep         string `xml:"daysToKeep"`
+				NumToKeep          string `xml:"numToKeep"`
+				ArtifactDaysToKeep string `xml:"artifactDaysToKeep"`
+				ArtifactNumToKeep  string `xml:"artifactNumToKeep"`
+			} `xml:"strategy"`
+		} `xml:"jenkins.model.BuildDiscarderProperty"`
+		HudsonModelParametersDefinitionProperty struct {
+			Text                 string `xml:",chardata"`
+			ParameterDefinitions struct {
+				Text                                 string `xml:",chardata"`
+				HudsonModelStringParameterDefinition []struct {
+					Text         string `xml:",chardata"`
+					Name         string `xml:"name"`
+					Description  string `xml:"description"`
+					DefaultValue string `xml:"defaultValue"`
+					Trim         string `xml:"trim"`
+				} `xml:"hudson.model.StringParameterDefinition"`
+			} `xml:"parameterDefinitions"`
+		} `xml:"hudson.model.ParametersDefinitionProperty"`
+	} `xml:"properties"`
+	Scm struct {
+		Text  string `xml:",chardata"`
+		Class string `xml:"class,attr"`
+	} `xml:"scm"`
+	CanRoam                          string `xml:"canRoam"`
+	Disabled                         string `xml:"disabled"`
+	BlockBuildWhenDownstreamBuilding string `xml:"blockBuildWhenDownstreamBuilding"`
+	BlockBuildWhenUpstreamBuilding   string `xml:"blockBuildWhenUpstreamBuilding"`
+	Jdk                              string `xml:"jdk"`
+	Triggers                         string `xml:"triggers"`
+	ConcurrentBuild                  string `xml:"concurrentBuild"`
+	Builders                         struct {
+		Text             string `xml:",chardata"`
+		HudsonTasksShell struct {
+			Text    string `xml:",chardata"`
+			Command string `xml:"command"`
+		} `xml:"hudson.tasks.Shell"`
+	} `xml:"builders"`
+	Publishers    string `xml:"publishers"`
+	BuildWrappers string `xml:"buildWrappers"`
+}
