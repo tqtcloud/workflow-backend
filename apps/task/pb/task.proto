@@ -87,6 +87,12 @@ message CreateTaskRequest {
     // delpoy 触发部署的 namespace 描述字段
     // @gotags: json:"app_type" bson:"app_type" 
     string app_type = 15;
+    // sshnode 前端ssh的远程主机节点IP
+    // @gotags: json:"sshnode" bson:"sshnode"
+    string sshnode = 16;
+    // sshshell 远程到指定节点执行的命令
+    // @gotags: json:"sshshell" bson:"sshshell"
+    string sshshell = 17;
 }
 
 message CopyTaskRequest {

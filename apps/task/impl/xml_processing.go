@@ -102,3 +102,72 @@ func imageTail(ins *task.Task) (string, error) {
 		return "", fmt.Errorf("imageTail  %s  does not exist ", ins.Data.Env)
 	}
 }
+
+func nodeBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := NodejsStruct{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config nodeBuildDeployXmlProc error, %s ", err)
+	}
+
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+
+	// ssh 到那台服务器使用
+	if ins.Data.Sshnode != "" {
+		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
+	}
+	// 远程主机执行命令
+	if ins.Data.Sshshell != "" {
+		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
+	}
+	// 更换nodejs的相关版本信息
+	if ins.Data.Buildenv != ""{
+		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
+	}
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
+
+// nodeBuildXmlProc 前端单独构建
+func nodeBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := NodejsBuildStruct{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config nodeBuildDeployXmlProc error, %s ", err)
+	}
+
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Scm.Branches.HudsonPluginsGitBranchSpec.Name = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue = ins.Data.AppName
+	//// ssh 到那台服务器使用
+	//if ins.Data.Sshnode != "" {
+	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
+	//}
+	//// 远程主机执行命令
+	//if ins.Data.Sshshell != "" {
+	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
+	//}
+	// 更换nodejs的相关版本信息
+	if ins.Data.Buildenv != ""{
+		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
+	}
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}

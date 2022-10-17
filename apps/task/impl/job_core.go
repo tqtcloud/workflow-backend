@@ -22,8 +22,12 @@ func templateDetermine(ins *task.Task, config string) ([]byte, error) {
 		return goXmlProc(ins, config)
 	case "jobtemplate/job/java-backend-template":
 		return javaXmlProc(ins, config)
-	case "jobtemplate/job/nodejs-backend-template":
-		return nil, nil
+	case "jobtemplate/job/nodejs-template-build-deploy": // 前端打包构建一起
+		return nodeBuildDeployXmlProc(ins, config)
+	case "jobtemplate/job/nodejs-template-build": // 前端打包
+		return nodeBuildXmlProc(ins, config)
+	//case "jobtemplate/job/nodejs-template-deploy": // 前端部署
+	//	return nil, nil
 	default:
 		return nil, fmt.Errorf("TemplateName  %s  does not exist ", ins.Data.TemplateName)
 	}
@@ -152,7 +156,7 @@ func getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *g
 	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
 
-	ins, err = classUnmarshal(req,ins,config)
+	ins, err = classUnmarshal(req, ins, config)
 	if err != nil {
 		return nil, exception.NewInternalServerError("job  GetConfig error, %s", err)
 	}
@@ -227,34 +231,36 @@ func updateJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Ta
 	//s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, job.GetName(), ins.Data.Folder)
 	return ins, nil
 }
+
 // classUnmarshal get config 不同job类型的分离转换
 func classUnmarshal(req *task.DescribeTaskRequest, ins *task.Task, config string) (*task.Task, error) {
 	generalData := new(GeneralStruct)
 	goData := new(GoStruct)
-	javaData  := new(Maven2Struct)
-	deployData  := new(DeployStruct)
+	javaData := new(Maven2Struct)
+	deployData := new(DeployStruct)
 	if err := xml.Unmarshal([]byte(config), generalData); err == nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
-		data := generalUnmarshal(req,ins,generalData)
+		data := generalUnmarshal(req, ins, generalData)
 		//fmt.Printf("jenkins xml 反序列化成功：%s,job名称：%s 属于类型：%T \n", err, ins.Data.JobName,generalData)
-		return data,nil
+		return data, nil
 	} else if err := xml.Unmarshal([]byte(config), javaData); err == nil {
-		data := javaUnmarshal(req,ins,javaData)
-		return data,nil
+		data := javaUnmarshal(req, ins, javaData)
+		return data, nil
 	} else if err := xml.Unmarshal([]byte(config), goData); err == nil {
-		data := generalUnmarshal(req,ins,goData)
-		return data,nil
+		data := generalUnmarshal(req, ins, goData)
+		return data, nil
 
 	} else if err := xml.Unmarshal([]byte(config), deployData); err == nil {
 		//data = data.(DeployStruct)
-		data := generalUnmarshal(req,ins,deployData)
-		return data,nil
+		data := generalUnmarshal(req, ins, deployData)
+		return data, nil
 	} else {
 		return nil, exception.NewInternalServerError("Job config classUnmarshal error, %s", err)
 	}
 }
+
 // generalUnmarshal 通用xml 数据进行处理转换为结构体进行http返回
-func generalUnmarshal(req *task.DescribeTaskRequest,ins *task.Task,data any)  *task.Task {
+func generalUnmarshal(req *task.DescribeTaskRequest, ins *task.Task, data any) *task.Task {
 	fmt.Println(data.(*GeneralStruct).Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL)
 	ins.Data.GitUrl = data.(*GeneralStruct).Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
 	ins.Data.Branch = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
@@ -265,17 +271,23 @@ func generalUnmarshal(req *task.DescribeTaskRequest,ins *task.Task,data any)  *t
 	ins.Data.Env = req.Env
 	ins.Data.JobName = jobNameJoin(req)
 	ins.CreateAt = time.Now().UnixMicro()
+	// 增加2个nodejs字段
+	ins.Data.Sshshell = data.(*GeneralStruct).Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand
+	ins.Data.Sshnode  = data.(*GeneralStruct).Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName
+	// jdk node版本信息
+	ins.Data.Buildenv = data.(*GeneralStruct).BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName
 	ins.Id = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Uuid
 	return ins
 }
+
 // javaUnmarshal Java xml 数据进行处理转换为结构体进行http返回
-func javaUnmarshal(req *task.DescribeTaskRequest,ins *task.Task,data any)  *task.Task {
+func javaUnmarshal(req *task.DescribeTaskRequest, ins *task.Task, data any) *task.Task {
 	ins.Data.GitUrl = data.(*Maven2Struct).Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
 	ins.Data.Branch = data.(*Maven2Struct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
-	ins.Data.Buildeshell =	data.(*Maven2Struct).Postbuilders.HudsonTasksShell.Command
+	ins.Data.Buildeshell = data.(*Maven2Struct).Postbuilders.HudsonTasksShell.Command
 	ins.Data.Description = data.(*Maven2Struct).Description
 	ins.Data.AppName = data.(*Maven2Struct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[4].DefaultValue
-
+	ins.Data.Buildenv = data.(*Maven2Struct).Jdk
 	ins.Data.Folder = req.Folder
 	ins.Data.Env = req.Env
 	ins.Data.JobName = jobNameJoin(req)
