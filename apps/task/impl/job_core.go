@@ -29,6 +29,21 @@ func templateDetermine(ins *task.Task, config string) ([]byte, error) {
 	}
 }
 
+//func templateDescribe(ins *task.Task, config string) ([]byte, error) {
+//	switch ins.Data.TemplateName {
+//	case "jobtemplate/job/deploy-template":
+//		return deployXmlUnmarshal(ins, config)
+//	case "jobtemplate/job/go-backend-template":
+//		return goXmlUnmarshal(ins, config)
+//	case "jobtemplate/job/java-backend-template":
+//		return javaXmlUnmarshal(ins, config)
+//	case "jobtemplate/job/nodejs-backend-template":
+//		return nil, nil
+//	default:
+//		return nil, fmt.Errorf("TemplateName  %s  does not exist ", ins.Data.TemplateName)
+//	}
+//}
+
 // createJob 创建job逻辑实现
 func createJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Task, error) {
 	jenkins, err := envDecision(ctx, ins.Data.Env, conf)
@@ -136,22 +151,12 @@ func getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *g
 	}
 	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
-	data := new(Project)
-	if err := xml.Unmarshal([]byte(config), &data); err != nil {
-		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
-		return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
+
+	ins, err = classUnmarshal(req,ins,config)
+	if err != nil {
+		return nil, exception.NewInternalServerError("job  GetConfig error, %s", err)
 	}
-	ins.Data.GitUrl = data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
-	ins.Data.Branch = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
-	ins.Data.Buildeshell = data.Builders.HudsonTasksShell.Command
-	ins.Data.Description = data.Description
-	// appname
-	ins.Data.AppName = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue
-	ins.Data.Folder = req.Folder
-	ins.Data.Env = req.Env
-	ins.Data.JobName = jobName
-	ins.CreateAt = time.Now().UnixMicro()
-	ins.Id = data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Uuid
+
 	return ins, nil
 }
 
@@ -185,7 +190,7 @@ func updateJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Ta
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
 
 	//s.log.Debug(config)
-	data := Project{}
+	data := GeneralStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, exception.NewInternalServerError("Job config Unmarshal error, %s", err)
@@ -221,4 +226,59 @@ func updateJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Ta
 
 	//s.log.Printf("%s 环境 jenkins Job %s 创建成功,目录位与：%s", task.JenkinsEnv_DEV, job.GetName(), ins.Data.Folder)
 	return ins, nil
+}
+// classUnmarshal get config 不同job类型的分离转换
+func classUnmarshal(req *task.DescribeTaskRequest, ins *task.Task, config string) (*task.Task, error) {
+	generalData := new(GeneralStruct)
+	goData := new(GoStruct)
+	javaData  := new(Maven2Struct)
+	deployData  := new(DeployStruct)
+	if err := xml.Unmarshal([]byte(config), generalData); err == nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		data := generalUnmarshal(req,ins,generalData)
+		//fmt.Printf("jenkins xml 反序列化成功：%s,job名称：%s 属于类型：%T \n", err, ins.Data.JobName,generalData)
+		return data,nil
+	} else if err := xml.Unmarshal([]byte(config), javaData); err == nil {
+		data := javaUnmarshal(req,ins,javaData)
+		return data,nil
+	} else if err := xml.Unmarshal([]byte(config), goData); err == nil {
+		data := generalUnmarshal(req,ins,goData)
+		return data,nil
+
+	} else if err := xml.Unmarshal([]byte(config), deployData); err == nil {
+		//data = data.(DeployStruct)
+		data := generalUnmarshal(req,ins,deployData)
+		return data,nil
+	} else {
+		return nil, exception.NewInternalServerError("Job config classUnmarshal error, %s", err)
+	}
+}
+// generalUnmarshal 通用xml 数据进行处理转换为结构体进行http返回
+func generalUnmarshal(req *task.DescribeTaskRequest,ins *task.Task,data any)  *task.Task {
+	fmt.Println(data.(*GeneralStruct).Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL)
+	ins.Data.GitUrl = data.(*GeneralStruct).Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
+	ins.Data.Branch = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
+	ins.Data.Buildeshell = data.(*GeneralStruct).Builders.HudsonTasksShell.Command
+	ins.Data.Description = data.(*GeneralStruct).Description
+	ins.Data.AppName = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue
+	ins.Data.Folder = req.Folder
+	ins.Data.Env = req.Env
+	ins.Data.JobName = jobNameJoin(req)
+	ins.CreateAt = time.Now().UnixMicro()
+	ins.Id = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Uuid
+	return ins
+}
+// javaUnmarshal Java xml 数据进行处理转换为结构体进行http返回
+func javaUnmarshal(req *task.DescribeTaskRequest,ins *task.Task,data any)  *task.Task {
+	ins.Data.GitUrl = data.(*Maven2Struct).Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL
+	ins.Data.Branch = data.(*Maven2Struct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
+	ins.Data.Buildeshell =	data.(*Maven2Struct).Postbuilders.HudsonTasksShell.Command
+	ins.Data.Description = data.(*Maven2Struct).Description
+	ins.Data.AppName = data.(*Maven2Struct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[4].DefaultValue
+
+	ins.Data.Folder = req.Folder
+	ins.Data.Env = req.Env
+	ins.Data.JobName = jobNameJoin(req)
+	ins.CreateAt = time.Now().UnixMicro()
+	return ins
 }

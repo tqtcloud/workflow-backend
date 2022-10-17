@@ -7,7 +7,7 @@ import (
 )
 
 func deployXmlProc(ins *task.Task, config string) ([]byte, error) {
-	data := DeployProject{}
+	data := DeployStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
@@ -34,7 +34,7 @@ func deployXmlProc(ins *task.Task, config string) ([]byte, error) {
 
 // go 模板函数处理
 func goXmlProc(ins *task.Task, config string) ([]byte, error) {
-	data := Project{}
+	data := GeneralStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
@@ -59,7 +59,7 @@ func goXmlProc(ins *task.Task, config string) ([]byte, error) {
 
 // java 模板函数处理
 func javaXmlProc(ins *task.Task, config string) ([]byte, error) {
-	data := Maven2Moduleset{}
+	data := Maven2Struct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
 		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
