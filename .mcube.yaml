@@ -1,3 +1,4 @@
+version: v1.8.11
 pkg: github.com/tqtcloud/workflow-backend
 name: workflow-backend
 description: 工作流后端
