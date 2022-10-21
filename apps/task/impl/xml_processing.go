@@ -4,8 +4,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/tqtcloud/workflow-backend/apps/task"
+	"strings"
 )
 
+// argocd  部署模板
 func deployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := DeployStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
@@ -22,7 +24,7 @@ func deployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	// APP_TYPE
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppType
 	// APP_ENV
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.Env.String()
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = appENV(ins.Data.Env)
 
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
@@ -32,8 +34,39 @@ func deployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	return xmlData, nil
 }
 
-// go 模板函数处理
-func goXmlProc(ins *task.Task, config string) ([]byte, error) {
+// go 构建 argocd 部署模板函数处理
+func goBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := GoBuildDeployStruct{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
+	}
+
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+
+	imageName, _ := imageTail(ins)
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	// APP_TYPE
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+	// APP_ENV
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = appENV(ins.Data.Env)
+
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
+
+// go 构建 ssh 部署模板函数处理
+func goBuildSShXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := GeneralStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
@@ -46,8 +79,20 @@ func goXmlProc(ins *task.Task, config string) ([]byte, error) {
 		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
 	}
 	data.Description = ins.Data.Description
-	// appname
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue = ins.Data.AppName
+	imageName, _ := imageTail(ins)
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	// SERVER_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+
+	// ssh 到那台服务器使用
+	if ins.Data.Sshnode != "" {
+		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
+	}
+	// 远程主机执行命令
+	if ins.Data.Sshshell != "" {
+		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
+	}
 
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
@@ -57,8 +102,72 @@ func goXmlProc(ins *task.Task, config string) ([]byte, error) {
 	return xmlData, nil
 }
 
-// java 模板函数处理
-func javaXmlProc(ins *task.Task, config string) ([]byte, error) {
+// goBuildXmlProc go 构建模板
+func goBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
+	// 这里也使用相同模板是因为 build job 没有argocd的触发命令其他相同故使用
+	data := GoBuildDeployStruct{}
+
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
+	}
+
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+	imageName, _ := imageTail(ins)
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	// SERVER_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
+
+// java 打包 部署 模板函数处理
+func javaBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := Maven2Struct{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
+	}
+
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Postbuilders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+
+	//通过环境对docker name 添加尾缀
+	imageName, _ := imageTail(ins)
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	// CODE_MODULE mvn 打包服务 argocd 服务名 需要使用原名
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppName
+	// APP_TYPE namespace名
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[3].DefaultValue = ins.Data.AppType
+	// APP_ENV
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[4].DefaultValue = appENV(ins.Data.Env)
+
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
+
+// java 打包  模板函数处理
+func javaBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := Maven2Struct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
@@ -75,11 +184,11 @@ func javaXmlProc(ins *task.Task, config string) ([]byte, error) {
 	//通过环境对docker name 添加尾缀
 	imageName, _ := imageTail(ins)
 	// CONTAINER_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = imageName
-	// appname
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
 	// CODE_MODULE mvn 打包服务 需要使用原名
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[4].DefaultValue = ins.Data.AppName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[3].DefaultValue = ins.Data.AppName
 
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
@@ -89,20 +198,7 @@ func javaXmlProc(ins *task.Task, config string) ([]byte, error) {
 	return xmlData, nil
 }
 
-// imageTail docker name 尾缀添加，为了相应后端的镜像构建：bigdata_server_dev
-func imageTail(ins *task.Task) (string, error) {
-	switch ins.Data.Env {
-	case task.JenkinsEnv_DEV:
-		return ins.Data.AppName + "_dev", nil
-	case task.JenkinsEnv_TEST:
-		return ins.Data.AppName + "_sit", nil
-	case task.JenkinsEnv_UAT:
-		return ins.Data.AppName + "_uat", nil
-	default:
-		return "", fmt.Errorf("imageTail  %s  does not exist ", ins.Data.Env)
-	}
-}
-
+// node 打包部署模板函数处理
 func nodeBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := NodejsStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
@@ -137,7 +233,7 @@ func nodeBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	return xmlData, nil
 }
 
-// nodeBuildXmlProc 前端单独构建
+// node 前端单独构建
 func nodeBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := NodejsBuildStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {

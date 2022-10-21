@@ -16,12 +16,18 @@ import (
 // 不同模板之间的结构体不一样，所以需要在此处进行更改
 func templateDetermine(ins *task.Task, config string) ([]byte, error) {
 	switch ins.Data.TemplateName {
-	case "jobtemplate/job/deploy-template":
+	case "jobtemplate/job/argocd-deploy-template":
 		return deployXmlProc(ins, config)
-	case "jobtemplate/job/go-backend-template":
-		return goXmlProc(ins, config)
-	case "jobtemplate/job/java-backend-template":
-		return javaXmlProc(ins, config)
+	case "jobtemplate/job/go-backend-template-build": // go 构建制品
+		return goBuildXmlProc(ins, config)
+	case "jobtemplate/job/go-backend-template-build-ssh": // go 构建 ssh部署
+		return goBuildSShXmlProc(ins, config)
+	case "jobtemplate/job/go-backend-template-build-argocd":
+		return goBuildDeployXmlProc(ins, config)
+	case "jobtemplate/job/java-backend-template-build-argocd":
+		return javaBuildDeployXmlProc(ins, config)
+	case "jobtemplate/job/java-backend-template-build":
+		return javaBuildXmlProc(ins, config)
 	case "jobtemplate/job/nodejs-template-build-deploy": // 前端打包构建一起
 		return nodeBuildDeployXmlProc(ins, config)
 	case "jobtemplate/job/nodejs-template-build": // 前端打包
@@ -155,7 +161,7 @@ func getJobConfig(ctx context.Context, req *task.DescribeTaskRequest, jenkins *g
 	}
 	config = strings.TrimPrefix(config, `<?xml version="1.1" encoding="UTF-8" standalone="no"?>`)
 	config = strings.TrimPrefix(config, `<?xml version='1.1' encoding='UTF-8'?>`)
-
+	// 进行config 反序列化
 	ins, err = classUnmarshal(req, ins, config)
 	if err != nil {
 		return nil, exception.NewInternalServerError("job  GetConfig error, %s", err)
@@ -214,7 +220,7 @@ func updateJob(ctx context.Context, ins *task.Task, conf *conf.Config) (*task.Ta
 	}
 	if ins.Data.AppName != "" {
 		// appname
-		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue = ins.Data.AppName
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName
 	}
 
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
@@ -266,7 +272,7 @@ func generalUnmarshal(req *task.DescribeTaskRequest, ins *task.Task, data any) *
 	ins.Data.Branch = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch
 	ins.Data.Buildeshell = data.(*GeneralStruct).Builders.HudsonTasksShell.Command
 	ins.Data.Description = data.(*GeneralStruct).Description
-	ins.Data.AppName = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue
+	ins.Data.AppName = data.(*GeneralStruct).Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue
 	ins.Data.Folder = req.Folder
 	ins.Data.Env = req.Env
 	ins.Data.JobName = jobNameJoin(req)
@@ -293,4 +299,34 @@ func javaUnmarshal(req *task.DescribeTaskRequest, ins *task.Task, data any) *tas
 	ins.Data.JobName = jobNameJoin(req)
 	ins.CreateAt = time.Now().UnixMicro()
 	return ins
+}
+
+// appENV  根据jenkins环境确定argocd环境变量值
+func appENV(env task.JenkinsEnv)  string  {
+	switch env {
+	case task.JenkinsEnv_DEV:
+		return "dev"
+	case task.JenkinsEnv_TEST:
+		return "sit"
+	case task.JenkinsEnv_UAT:
+		return "uat"
+	case task.JenkinsEnv_LPT:
+		return "uat"
+	default:
+		return "请输入：dev,sit,uat"
+	}
+}
+
+// imageTail docker name 尾缀添加，为了相应后端的镜像构建：bigdata_server_dev
+func imageTail(ins *task.Task) (string, error) {
+	switch ins.Data.Env {
+	case task.JenkinsEnv_DEV:
+		return  "_dev", nil
+	case task.JenkinsEnv_TEST:
+		return  "_sit", nil
+	case task.JenkinsEnv_UAT:
+		return  "_uat", nil
+	default:
+		return "", fmt.Errorf("imageTail  %s  does not exist ", ins.Data.Env)
+	}
 }
