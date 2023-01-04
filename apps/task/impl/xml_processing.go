@@ -51,7 +51,7 @@ func goBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// APP_TYPE
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppType
 	// APP_ENV
@@ -81,7 +81,7 @@ func goBuildSShXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data.Description = ins.Data.Description
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// SERVER_NAME
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 
@@ -120,7 +120,7 @@ func goBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data.Description = ins.Data.Description
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// SERVER_NAME
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 
@@ -141,7 +141,7 @@ func javaBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	}
 
 	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.DefaultValue = ins.Data.Branch
 	if ins.Data.Buildeshell != "" {
 		data.Postbuilders.HudsonTasksShell.Command = ins.Data.Buildeshell
 	}
@@ -150,7 +150,7 @@ func javaBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	//通过环境对docker name 添加尾缀
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// CODE_MODULE mvn 打包服务 argocd 服务名 需要使用原名
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 	// APP_TYPE namespace名
@@ -175,7 +175,7 @@ func javaBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	}
 
 	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.Branch = ins.Data.Branch
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.DefaultValue = ins.Data.Branch
 	if ins.Data.Buildeshell != "" {
 		data.Postbuilders.HudsonTasksShell.Command = ins.Data.Buildeshell
 	}
@@ -184,9 +184,9 @@ func javaBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	//通过环境对docker name 添加尾缀
 	imageName, _ := imageTail(ins)
 	// CONTAINER_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = strings.ReplaceAll(ins.Data.AppName,"-","_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// CODE_MODULE mvn 打包服务 需要使用原名
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppName
 
@@ -222,7 +222,7 @@ func nodeBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
 	}
 	// 更换nodejs的相关版本信息
-	if ins.Data.Buildenv != ""{
+	if ins.Data.Buildenv != "" {
 		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
 	}
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
@@ -257,7 +257,7 @@ func nodeBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
 	//}
 	// 更换nodejs的相关版本信息
-	if ins.Data.Buildenv != ""{
+	if ins.Data.Buildenv != "" {
 		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
 	}
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
