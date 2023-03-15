@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package tqtcloud.task;
+option go_package = "github.com/tqtcloud/workflow-backend/apps/task";
+
+import "github.com/infraboard/mcube/pb/page/page.proto";
+import "github.com/infraboard/mcube/pb/request/request.proto";
+
+service Service {
+    rpc CreateTask(CreateTaskRequest) returns(Task);
+    rpc CopyTask(CreateTaskRequest) returns(Task);
+    rpc QueryTask(QueryTaskRequest) returns(TaskSet);
+    rpc DescribeTask(DescribeTaskRequest) returns(Task);
+    rpc UpdateTask(UpdateTaskRequest) returns(Task);
+    rpc DeleteTask(DeleteTaskRequest) returns(Task);
+    rpc SshExec(ExecRequest) returns(ExecResp);
+}
+
+// Task todo
+message Task {
+    // 唯一ID
+    // @gotags: json:"id" bson:"_id"
+    string id = 1;
+    // 录入时间
+    // @gotags: json:"create_at" bson:"create_at"
+    int64 create_at = 2;
+    // 更新时间
+    // @gotags: json:"update_at" bson:"update_at"
+    int64 update_at = 3;
+    // 更新人
+    // @gotags: json:"update_by" bson:"update_by"
+    string update_by = 4;
+    // job 信息
+    // @gotags: json:"data" bson:"data"
+    CreateTaskRequest data = 5;
+}
+
+enum JenkinsEnv {
+    // jenkins 对应环境  开发 测试 预发 压测 正式
+    ENVs = 0;
+    DEV = 1;
+    TEST = 2;
+    UAT = 3;
+    LPT = 4;
+    PROD = 5;
+}
+
+message CreateTaskRequest {
+    // job创建人
+    // @gotags: json:"create_by" bson:"create_by" validate:"required"
+    string create_by = 1;
+    // job名称
+    // @gotags: json:"jobName" bson:"jobName" validate:"required"
+    string jobName = 2;
+    // jenkins 环境
+    // @gotags: json:"Env" bson:"Env"  validate:"required"
+    JenkinsEnv env =3;
+    // 代码库地址 URL
+    // @gotags: json:"gitUrl" bson:"gitUrl" validate:"required"
+    string gitUrl = 4;
+    // 代码分支
+    // @gotags: json:"branch" bson:"branch" validate:"required"
+    string branch = 5;
+    // 应用名称
+    // @gotags: json:"appName" bson:"appName" validate:"required"
+    string appName = 6;
+    // 应用信息
+    // @gotags: json:"description" bson:"description" validate:"required"
+    string description =7;
+    // 构建脚本
+    // @gotags: json:"buildeshell" bson:"buildeshell"
+    string buildeshell =8;
+    // 构建环境，Java1.8 NodeJS10.6.2
+    // @gotags: json:"buildenv" bson:"buildenv"
+    string buildenv =9;
+    // jenkins 文件夹
+    // @gotags: json:"folder" bson:"folder"
+    string folder =11;
+    // 复制job 源job
+    // @gotags: json:"oldjobName" bson:"oldjobName"
+    string oldjobName = 12;
+    // 复制job 目标job
+    // @gotags: json:"newjobName" bson:"newjobName"
+    string newjobName = 13;
+    // job 模板名，基于这个job获取xml config
+    // @gotags: json:"templateName" bson:"templateName" validate:"required"
+    string templateName = 14;
+    // delpoy 触发部署的 namespace 描述字段
+    // @gotags: json:"app_type" bson:"app_type" 
+    string app_type = 15;
+    // sshnode 前端ssh的远程主机节点IP
+    // @gotags: json:"sshnode" bson:"sshnode"
+    string sshnode = 16;
+    // sshshell 远程到指定节点执行的命令
+    // @gotags: json:"sshshell" bson:"sshshell"
+    string sshshell = 17;
+}
+
+message CopyTaskRequest {
+    // job创建人
+    // @gotags: json:"create_by" bson:"create_by"
+    string create_by = 1;
+    // job名称
+    // @gotags: json:"jobName" bson:"jobName" validate:"required"
+    string oldjobName = 2;
+    // jenkins 环境
+    // @gotags: json:"Env" bson:"Env"  validate:"required"
+    JenkinsEnv env =3;
+    // 代码库地址 URL
+    // @gotags: json:"gitUrl" bson:"gitUrl"
+    string gitUrl = 4;
+    // 代码分支
+    // @gotags: json:"branch" bson:"branch"
+    string branch = 5;
+    // 应用名称
+    // @gotags: json:"appName" bson:"appName"
+    string appName = 6;
+    // 应用信息
+    // @gotags: json:"description" bson:"description"
+    string description =7;
+    // 构建脚本
+    // @gotags: json:"buildeshell" bson:"buildeshell"
+    string buildeshell =8;
+    // 构建环境，Java1.8 NodeJS10.6.2
+    // @gotags: json:"buildenv" bson:"buildenv"
+    string buildenv =9;
+    // 创建的xml信息
+    // @gotags: json:"xml" bson:"xml"
+    string xml =10;
+    // jenkins 文件夹
+    // @gotags: json:"folder" bson:"folder"
+    string folder =11;
+    string newjobName = 12;
+}
+
+message QueryTaskRequest {
+    // 分页参数
+    // @gotags: json:"page" 
+    infraboard.mcube.page.PageRequest page = 1;
+    // 关键字参数
+    // @gotags: json:"keywords"
+    string keywords = 2;  
+}
+
+// TaskSet todo
+message TaskSet {
+    // 分页时，返回总数量
+    // @gotags: json:"total"
+    int64 total = 1;
+    // 一页的数据
+    // @gotags: json:"items"
+    repeated Task items = 2;
+}
+
+message DescribeTaskRequest {
+    // jobname id
+    // @gotags: json:"jobname" validate:"required"
+    string jobname = 1;
+    // jenkins 环境
+    // @gotags: json:"Env"   validate:"required"
+    JenkinsEnv env =2;
+    // jenkins 文件夹
+    // @gotags: json:"folder" bson:"folder"
+    string folder =3;
+}
+
+message UpdateTaskRequest {
+    // 更新模式 PUT 全量更新  patch 更新指定字段
+    // @gotags: json:"update_mode"
+    infraboard.mcube.request.UpdateMode update_mode = 2;
+    // 更新人
+    // @gotags: json:"update_by"
+    string update_by = 3;
+    // 更新时间
+    // @gotags: json:"update_at"
+    int64 update_at = 4;
+    // 更新jenkins job 信息
+    // @gotags: json:"data"
+    CreateTaskRequest data = 5;
+}
+
+message DeleteTaskRequest {
+    // jobname id
+    // @gotags: json:"jobname"
+    string jobname = 1;
+    // jenkins 环境
+    // @gotags: json:"Env"
+    string env =2;
+    // jenkins 文件夹
+    // @gotags: json:"folder"
+    string folder =3;
+}
+
+
+message ExecRequest {
+    // @gotags: json:"env"  validate:"required"
+    JenkinsEnv env = 1;
+    // @gotags: json:"type"   validate:"required"
+    string type =2 ;
+    // @gotags: json:"name"   validate:"required"
+    string name =3 ;
+    // @gotags: json:"port"   validate:"required"
+    string port = 4 ;
+//    // @gotags: json:"sheel"   validate:"required"
+//    string sheel = 5;
+}
+
+message ExecResp {
+    string message = 1 ;
+    ExecRequest data = 2 ;
+
+}

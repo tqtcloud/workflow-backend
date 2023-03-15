@@ -1,0 +1,47 @@
+[app]
+name = "workflow-backend"
+key  = "this is your app key"
+
+[app.http]
+host = "127.0.0.1"
+port = "8050"
+
+[app.grpc]
+host = "127.0.0.1"
+port = "18050"
+
+
+[jenkins]
+devendpoints="xxxxxxx"
+testendpoints="xxxxxxx"
+uatendpoints="xxxxxxx"
+lptendpoints="xxxxxxx"
+prodendpoints="xxxxxxx"
+user="xxxxxxx"
+password="xxxxxxx"
+
+[mongodb]
+endpoints = ["127.0.0.1:27017"]
+username = "workflow"
+password = "123456"
+database = "workflow"
+
+[log]
+level = "debug"
+path = "logs"
+format = "text"
+to = "stdout"
+
+[sshexec]
+devnode = "xxxxxxx"
+testnode = "xxxxxxx"
+uatnode = "xxxxxxx"
+prodnode = "xxxxxxx"
+user = "xxxxxxx"
+devport = "xxxxxxx"
+testport = "xxxxxxx"
+uatport = "xxxxxxx"
+prodport = "xxxxxxx"
+prodsshKeyPath = "etc/xxxxxxx.pem"
+uatsshKeyPath = "etc/xxxxxxx.pem"
+sshShell = "echo add-application-sit.sh"

@@ -1,0 +1,25 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+# Test binary, built with `go test -c`
+*.test
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+*.idea
+*vendor
+cover.out
+coverage.txt
+
+etc/workflow-backend.toml
+etc/workflow-backend.env
+etc/unit_test.env
+etc/ssl
+etc/config.toml
+etc/config.env
+etc/hy-root.pem
+etc/lyy.pem
+dist/
+workflow-backend
