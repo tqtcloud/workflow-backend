@@ -201,6 +201,8 @@ message ExecRequest {
     string name =3 ;
     // @gotags: json:"port"   validate:"required"
     string port = 4 ;
+    // @gotags: json:"probe"   validate:"required"
+    string probe = 5 ;
 //    // @gotags: json:"sheel"   validate:"required"
 //    string sheel = 5;
 }

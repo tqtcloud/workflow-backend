@@ -193,10 +193,11 @@ func NewExecRequest(req *ExecRequest) (*ExecRequest, error) {
 	}
 
 	return &ExecRequest{
-		Env:  req.Env,
-		Type: req.Type,
-		Name: req.Name,
-		Port: req.Port,
+		Env:   req.Env,
+		Type:  req.Type,
+		Name:  req.Name,
+		Port:  req.Port,
+		Probe: req.Probe,
 	}, nil
 }
 
@@ -205,7 +206,7 @@ func NewDefaultExecRequest() *ExecRequest {
 }
 
 // ExEcShell 根据传入的相关主机信息，远程主机执行命令，然后关闭通道
-func ExEcShell(sshUser, sshHost, sshPort, sshKeyPath, Type, Name, Port, sshShell string) (string, error) {
+func ExEcShell(sshUser, sshHost, sshPort, sshKeyPath, Type, Name, Port, Probe, sshShell string) (string, error) {
 	sshClient, err := NewSshLoginConfig(sshUser, sshHost, sshPort, sshKeyPath)
 	if err != nil {
 		return "", exception.NewBadRequest("创建ssh client 失败, %s", err)
@@ -218,7 +219,7 @@ func ExEcShell(sshUser, sshHost, sshPort, sshKeyPath, Type, Name, Port, sshShell
 	}
 	defer session.Close()
 	//执行远程命令
-	cmdShell := fmt.Sprintf("%s %s %s %s", sshShell, Type, Name, Port)
+	cmdShell := fmt.Sprintf("%s %s %s %s %s", sshShell, Type, Name, Port, Probe)
 	combo, err := session.CombinedOutput(cmdShell)
 	if err != nil {
 		return "", exception.NewBadRequest("远程执行cmd 失败", err)
@@ -228,7 +229,7 @@ func ExEcShell(sshUser, sshHost, sshPort, sshKeyPath, Type, Name, Port, sshShell
 }
 
 // PasswordConnect 没秘钥使用密码连接的
-func PasswordConnect(sshUser, sshHost, sshPort, password, Type, Name, Port, sshShell string) (string, error) {
+func PasswordConnect(sshUser, sshHost, sshPort, password, Type, Name, Port, Probe, sshShell string) (string, error) {
 	var (
 		auth         []ssh.AuthMethod
 		addr         string
@@ -262,7 +263,7 @@ func PasswordConnect(sshUser, sshHost, sshPort, password, Type, Name, Port, sshS
 	}
 	defer session.Close()
 	//执行远程命令
-	cmdShell := fmt.Sprintf("%s %s %s %s", sshShell, Type, Name, Port)
+	cmdShell := fmt.Sprintf("%s %s %s %s %s", sshShell, Type, Name, Port, Probe)
 	combo, err := session.CombinedOutput(cmdShell)
 	if err != nil {
 		return "", exception.NewBadRequest("远程执行cmd 失败", err)

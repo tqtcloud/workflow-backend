@@ -201,7 +201,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 
 	switch ins.Env {
 	case task.JenkinsEnv_DEV:
-		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.DevNode, s.conf.SshExec.DevPort, "Password1", ins.Type, ins.Name, ins.Port, s.conf.SshExec.SshShell)
+		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.DevNode, s.conf.SshExec.DevPort, "Password1", ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.DevSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误  error, %s", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
@@ -213,7 +213,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 		}, nil
 
 	case task.JenkinsEnv_TEST:
-		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.TestNode, s.conf.SshExec.TestPort, "Password1", ins.Type, ins.Name, ins.Port, s.conf.SshExec.SshShell)
+		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.TestNode, s.conf.SshExec.TestPort, "Password1", ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.TestSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误  error, %s", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
@@ -224,7 +224,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 			Message: strings.TrimRight(message, "\n"),
 		}, nil
 	case task.JenkinsEnv_UAT:
-		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.UatNode, s.conf.SshExec.UatPort, s.conf.SshExec.UatSshKeyPath, ins.Type, ins.Name, ins.Port, s.conf.SshExec.SshShell)
+		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.UatNode, s.conf.SshExec.UatPort, s.conf.SshExec.UatSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.UatSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误  error, %s", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
@@ -238,7 +238,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 		s.log.Error("压测环境已经消失了")
 		return nil, exception.NewBadRequest("Request JenkinsEnv  error,%s  ", ins.Env)
 	case task.JenkinsEnv_PROD:
-		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.UatNode, s.conf.SshExec.UatPort, s.conf.SshExec.ProdSshKeyPath, ins.Type, ins.Name, ins.Port, s.conf.SshExec.SshShell)
+		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.UatNode, s.conf.SshExec.UatPort, s.conf.SshExec.ProdSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.UatSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误  error, %s", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)

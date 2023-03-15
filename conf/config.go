@@ -115,7 +115,9 @@ type sshexec struct {
 	ProdPort       string `toml:"prodport" env:"Prod_Port"`
 	ProdSshKeyPath string `toml:"prodsshKeyPath" env:"Prod_SSH_Key_Path"`
 	UatSshKeyPath  string `toml:"uatsshKeyPath" env:"Uat_SSH_Key_Path"`
-	SshShell       string `toml:"sshShell" env:"SSH_Shell"`
+	DevSshShell    string `toml:"DevSshShell" env:"Dev_SSH_Shell"`
+	TestSshShell   string `toml:"TestSshShell" env:"Test_SSH_Shell"`
+	UatSshShell    string `toml:"UatSshShell" env:"Uat_SSH_Shell"`
 }
 
 func newDefaultLog() *log {
