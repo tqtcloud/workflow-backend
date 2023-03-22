@@ -203,8 +203,8 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 	case task.JenkinsEnv_DEV:
 		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.DevNode, s.conf.SshExec.DevPort, "Password1", ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.DevSshShell)
 		if err != nil {
-			s.log.Errorf("远程执行主机命令错误  error, %s", err)
-			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
+			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %v", err)
+			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
 		}
 		s.log.Infof("开发环境主机命令执行完毕输出: %s", message)
 		return &task.ExecResp{
@@ -215,8 +215,8 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 	case task.JenkinsEnv_TEST:
 		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.TestNode, s.conf.SshExec.TestPort, "Password1", ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.TestSshShell)
 		if err != nil {
-			s.log.Errorf("远程执行主机命令错误  error, %s", err)
-			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
+			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %s", err)
+			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
 		}
 		s.log.Infof("测试环境主机命令执行完毕输出: %s", message)
 		return &task.ExecResp{
@@ -226,10 +226,10 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 	case task.JenkinsEnv_UAT:
 		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.UatNode, s.conf.SshExec.UatPort, s.conf.SshExec.UatSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.UatSshShell)
 		if err != nil {
-			s.log.Errorf("远程执行主机命令错误  error, %s", err)
-			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
+			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %v", err)
+			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
 		}
-		s.log.Infof("预发环境主机命令执行完毕输出: %s", message)
+		s.log.Infof("远程执行主机命令错误,请检查命令是否存在: %s", message)
 		return &task.ExecResp{
 			Data:    ins,
 			Message: strings.TrimRight(message, "\n"),
@@ -238,10 +238,10 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 		s.log.Error("压测环境已经消失了")
 		return nil, exception.NewBadRequest("Request JenkinsEnv  error,%s  ", ins.Env)
 	case task.JenkinsEnv_PROD:
-		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.UatNode, s.conf.SshExec.UatPort, s.conf.SshExec.ProdSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.UatSshShell)
+		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.ProdNode, s.conf.SshExec.UatPort, s.conf.SshExec.ProdSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.ProdSshShell)
 		if err != nil {
-			s.log.Errorf("远程执行主机命令错误  error, %s", err)
-			return nil, exception.NewBadRequest("远程执行主机命令错误 error, %s", err)
+			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %v", err)
+			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
 		}
 		s.log.Infof("生产环境主机命令执行完毕输出: %s", message)
 		return &task.ExecResp{

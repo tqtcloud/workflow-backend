@@ -110,12 +110,12 @@ func envDecision(ctx context.Context, env task.JenkinsEnv, conf *conf.Config) (*
 			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
 		}
 		return jenkins, nil
-	case task.JenkinsEnv_LPT:
-		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.LptEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
-		if err != nil {
-			return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
-		}
-		return jenkins, nil
+	//case task.JenkinsEnv_LPT:
+	//	jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.LptEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
+	//	if err != nil {
+	//		return nil, exception.NewInternalServerError("Connect Jenkins error, %s", err)
+	//	}
+	//	return jenkins, nil
 	case task.JenkinsEnv_PROD:
 		jenkins, err := task.ConnectJenkins(ctx, conf.Jenkins.ProdEndpoints, conf.Jenkins.User, conf.Jenkins.Password)
 		if err != nil {
@@ -123,7 +123,7 @@ func envDecision(ctx context.Context, env task.JenkinsEnv, conf *conf.Config) (*
 		}
 		return jenkins, nil
 	default:
-		return nil, fmt.Errorf("环境错误: %s; 您的：%s", "dev/test/uat/lpt/prod", env)
+		return nil, fmt.Errorf("环境错误: %s; 您的：%s", "dev/test/uat/prod", env)
 	}
 }
 

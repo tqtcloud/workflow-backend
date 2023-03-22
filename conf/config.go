@@ -118,6 +118,7 @@ type sshexec struct {
 	DevSshShell    string `toml:"DevSshShell" env:"Dev_SSH_Shell"`
 	TestSshShell   string `toml:"TestSshShell" env:"Test_SSH_Shell"`
 	UatSshShell    string `toml:"UatSshShell" env:"Uat_SSH_Shell"`
+	ProdSshShell   string `toml:"ProdSshShell" env:"Prod_SSH_Shell"`
 }
 
 func newDefaultLog() *log {
