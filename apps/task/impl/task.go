@@ -238,7 +238,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 		s.log.Error("压测环境已经消失了")
 		return nil, exception.NewBadRequest("Request JenkinsEnv  error,%s  ", ins.Env)
 	case task.JenkinsEnv_PROD:
-		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.ProdNode, s.conf.SshExec.UatPort, s.conf.SshExec.ProdSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.ProdSshShell)
+		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.ProdNode, s.conf.SshExec.ProdPort, s.conf.SshExec.ProdSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.ProdSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %v", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
