@@ -310,8 +310,8 @@ func appENV(env task.JenkinsEnv) string {
 		return "sit"
 	case task.JenkinsEnv_UAT:
 		return "uat"
-	case task.JenkinsEnv_LPT:
-		return "uat"
+	case task.JenkinsEnv_PROD:
+		return "prod"
 	default:
 		return "请输入：dev,sit,uat"
 	}
@@ -324,8 +324,6 @@ func imageTail(ins *task.Task) (string, error) {
 		return "_dev", nil
 	case task.JenkinsEnv_TEST:
 		return "_sit", nil
-	case task.JenkinsEnv_UAT:
-		return "_uat", nil
 	default:
 		return "", fmt.Errorf("imageTail  %s  does not exist ", ins.Data.Env)
 	}

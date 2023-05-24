@@ -51,7 +51,7 @@ func goBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName + imageName
 	// APP_TYPE
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppType
 	// APP_ENV
@@ -81,7 +81,7 @@ func goBuildSShXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data.Description = ins.Data.Description
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName + imageName
 	// SERVER_NAME
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 
@@ -118,9 +118,10 @@ func goBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
 	}
 	data.Description = ins.Data.Description
+
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName + imageName
 	// SERVER_NAME
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 
@@ -150,7 +151,7 @@ func javaBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	//通过环境对docker name 添加尾缀
 	imageName, _ := imageTail(ins)
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName + imageName
 	// CODE_MODULE mvn 打包服务 argocd 服务名 需要使用原名
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 	// APP_TYPE namespace名
@@ -186,7 +187,7 @@ func javaBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	// CONTAINER_NAME
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
 	// APP_NAME
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = strings.ReplaceAll(ins.Data.AppName, "-", "_") + imageName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName + imageName
 	// CODE_MODULE mvn 打包服务 需要使用原名
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppName
 
