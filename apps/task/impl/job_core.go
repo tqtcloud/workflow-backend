@@ -32,6 +32,12 @@ func templateDetermine(ins *task.Task, config string) ([]byte, error) {
 		return nodeBuildDeployXmlProc(ins, config)
 	case "jobtemplate/job/nodejs-template-build": // 前端打包
 		return nodeBuildXmlProc(ins, config)
+	case "jobtemplate/job/nodejs-template-build-nginx-deploy-dev": // dev前端打包远程到主机
+		return nodeBuildNginxDeployXmlProc(ins, config)
+	case "jobtemplate/job/nodejs-template-build-nginx-deploy-sit": // sit前端打包远程到主机
+		return nodeBuildNginxDeployXmlProc(ins, config)
+	case "jobtemplate/job/nodejs-template-nginx-deploy": // 前端打包
+		return nodeNginxDeployXmlProc(ins, config)
 	//case "jobtemplate/job/nodejs-template-deploy": // 前端部署
 	//	return nil, nil
 	default:

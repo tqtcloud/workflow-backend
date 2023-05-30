@@ -268,3 +268,66 @@ func nodeBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	}
 	return xmlData, nil
 }
+
+//nodejs-template-build-nginx-deploy 模板函数处理
+func nodeBuildNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := NodeBuildNginxDeployStruct{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config nodeBuildDeployXmlProc error, %s ", err)
+	}
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Scm.Branches.HudsonPluginsGitBranchSpec.Name = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+	// ssh 到那台服务器使用
+	if ins.Data.Sshnode != "" {
+		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
+	}
+	//// 远程主机执行命令
+	//if ins.Data.Sshshell != "" {
+	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
+	//}
+	//
+
+	// 更换nodejs的相关版本信息
+	if ins.Data.Buildenv != "" {
+		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
+	}
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
+
+//nodejs-template-nginx-deploy 前端ssh分发模板处理函数
+func nodeNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := NodeNginxDeploySshStruct{}
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config nodeBuildDeployXmlProc error, %s ", err)
+	}
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Scm.Branches.HudsonPluginsGitBranchSpec.Name = ins.Data.Branch
+	if ins.Data.Buildeshell != "" {
+		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
+	}
+	data.Description = ins.Data.Description
+	//CODE_MODULE
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName
+	//AppName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+	if ins.Data.Buildenv != "" {
+		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
+	}
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}
