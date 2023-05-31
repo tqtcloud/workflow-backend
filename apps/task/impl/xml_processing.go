@@ -331,3 +331,31 @@ func nodeNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	}
 	return xmlData, nil
 }
+
+// java base 开发环境使用处理函数
+func javaBackEndTemplateBuildBaseXmlProc(ins *task.Task, config string) ([]byte, error) {
+	data := new(JavaBackEndTemplateBuildBase)
+	if err := xml.Unmarshal([]byte(config), &data); err != nil {
+		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config Unmarshal error, %s ", err)
+	}
+
+	data.Scm.UserRemoteConfigs.HudsonPluginsGitUserRemoteConfig.URL = ins.Data.GitUrl
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition.DefaultValue = ins.Data.Branch
+
+	data.Description = ins.Data.Description
+
+	// CONTAINER_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName
+	// APP_NAME
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+	// CODE_MODULE mvn 打包服务 需要使用原名
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppName
+
+	xmlData, err := xml.MarshalIndent(&data, " ", " ")
+	if err != nil {
+		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
+		return nil, fmt.Errorf("Job config MarshalIndent error, %s ", err)
+	}
+	return xmlData, nil
+}

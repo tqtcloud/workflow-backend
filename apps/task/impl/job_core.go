@@ -28,6 +28,8 @@ func templateDetermine(ins *task.Task, config string) ([]byte, error) {
 		return javaBuildDeployXmlProc(ins, config)
 	case "jobtemplate/job/java-backend-template-build":
 		return javaBuildXmlProc(ins, config)
+	case "jobtemplate/job/java-backend-template-build-base": // 用于构建java后端项目的基础模板
+		return javaBackEndTemplateBuildBaseXmlProc(ins, config)
 	case "jobtemplate/job/nodejs-template-build-deploy": // 前端打包构建一起
 		return nodeBuildDeployXmlProc(ins, config)
 	case "jobtemplate/job/nodejs-template-build": // 前端打包
