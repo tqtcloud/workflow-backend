@@ -23,3 +23,4 @@ etc/hy-root.pem
 etc/lyy.pem
 dist/
 workflow-backend
+.DS_Store
