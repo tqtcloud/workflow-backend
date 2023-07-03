@@ -113,7 +113,9 @@ type sshexec struct {
 	TestPort       string `toml:"testport" env:"Test_Port"`
 	UatPort        string `toml:"uatport" env:"Uat_Port"`
 	ProdPort       string `toml:"prodport" env:"Prod_Port"`
+	DevSshKeyPath  string `toml:"devsshKeyPath" env:"Dev_SSH_Key_Path"`
 	ProdSshKeyPath string `toml:"prodsshKeyPath" env:"Prod_SSH_Key_Path"`
+	TestSshKeyPath string `toml:"testsshKeyPath" env:"Test_SSH_Key_Path"`
 	UatSshKeyPath  string `toml:"uatsshKeyPath" env:"Uat_SSH_Key_Path"`
 	DevSshShell    string `toml:"DevSshShell" env:"Dev_SSH_Shell"`
 	TestSshShell   string `toml:"TestSshShell" env:"Test_SSH_Shell"`

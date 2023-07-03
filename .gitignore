@@ -21,6 +21,7 @@ etc/config.toml
 etc/config.env
 etc/hy-root.pem
 etc/lyy.pem
+etc/devkey.pem
 dist/
 workflow-backend
 .DS_Store

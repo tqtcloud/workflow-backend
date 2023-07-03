@@ -201,7 +201,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 
 	switch ins.Env {
 	case task.JenkinsEnv_DEV:
-		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.DevNode, s.conf.SshExec.DevPort, "Password1", ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.DevSshShell)
+		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.DevNode, s.conf.SshExec.DevPort, s.conf.SshExec.DevSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.DevSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %v", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
@@ -213,7 +213,7 @@ func (s *service) SshExec(ctx context.Context, req *task.ExecRequest) (*task.Exe
 		}, nil
 
 	case task.JenkinsEnv_TEST:
-		message, err := task.PasswordConnect(s.conf.SshExec.User, s.conf.SshExec.TestNode, s.conf.SshExec.TestPort, "Password1", ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.TestSshShell)
+		message, err := task.ExEcShell(s.conf.SshExec.User, s.conf.SshExec.TestNode, s.conf.SshExec.TestPort, s.conf.SshExec.TestSshKeyPath, ins.Type, ins.Name, ins.Port, ins.Probe, s.conf.SshExec.TestSshShell)
 		if err != nil {
 			s.log.Errorf("远程执行主机命令错误,请检查命令是否存在  error, %s", err)
 			return nil, exception.NewBadRequest("远程执行主机命令错误,请检查命令是否存在 error, %v", err)
