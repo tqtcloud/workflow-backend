@@ -695,7 +695,7 @@ type GoBuildSSHStruct struct {
 }
 
 // java 项目模板
-type Maven2Struct struct {
+type Maven2Moduleset struct {
 	XMLName          xml.Name `xml:"maven2-moduleset"`
 	Text             string   `xml:",chardata"`
 	Plugin           string   `xml:"plugin,attr"`
@@ -824,6 +824,159 @@ type Maven2Struct struct {
 	} `xml:"globalSettings"`
 	Reporters     string `xml:"reporters"`
 	Publishers    string `xml:"publishers"`
+	BuildWrappers struct {
+		Text                                            string `xml:",chardata"`
+		HudsonPluginsTimestamperTimestamperBuildWrapper struct {
+			Text   string `xml:",chardata"`
+			Plugin string `xml:"plugin,attr"`
+		} `xml:"hudson.plugins.timestamper.TimestamperBuildWrapper"`
+	} `xml:"buildWrappers"`
+	Prebuilders  string `xml:"prebuilders"`
+	Postbuilders struct {
+		Text             string `xml:",chardata"`
+		HudsonTasksShell struct {
+			Text    string `xml:",chardata"`
+			Command string `xml:"command"`
+		} `xml:"hudson.tasks.Shell"`
+	} `xml:"postbuilders"`
+	RunPostStepsIfResult struct {
+		Text          string `xml:",chardata"`
+		Name          string `xml:"name"`
+		Ordinal       string `xml:"ordinal"`
+		Color         string `xml:"color"`
+		CompleteBuild string `xml:"completeBuild"`
+	} `xml:"runPostStepsIfResult"`
+}
+
+// java 项目模板 有wx通知
+type Maven2Struct struct {
+	XMLName          xml.Name `xml:"maven2-moduleset"`
+	Text             string   `xml:",chardata"`
+	Plugin           string   `xml:"plugin,attr"`
+	Actions          string   `xml:"actions"`
+	Description      string   `xml:"description"`
+	KeepDependencies string   `xml:"keepDependencies"`
+	Properties       struct {
+		Text                                                         string `xml:",chardata"`
+		ComDabsquaredGitlabjenkinsConnectionGitLabConnectionProperty struct {
+			Text             string `xml:",chardata"`
+			Plugin           string `xml:"plugin,attr"`
+			GitLabConnection string `xml:"gitLabConnection"`
+		} `xml:"com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty"`
+		JenkinsModelBuildDiscarderProperty struct {
+			Text     string `xml:",chardata"`
+			Strategy struct {
+				Text               string `xml:",chardata"`
+				Class              string `xml:"class,attr"`
+				DaysToKeep         string `xml:"daysToKeep"`
+				NumToKeep          string `xml:"numToKeep"`
+				ArtifactDaysToKeep string `xml:"artifactDaysToKeep"`
+				ArtifactNumToKeep  string `xml:"artifactNumToKeep"`
+			} `xml:"strategy"`
+		} `xml:"jenkins.model.BuildDiscarderProperty"`
+		HudsonModelParametersDefinitionProperty struct {
+			Text                 string `xml:",chardata"`
+			ParameterDefinitions struct {
+				Text                                                            string `xml:",chardata"`
+				NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition struct {
+					Text               string `xml:",chardata"`
+					Plugin             string `xml:"plugin,attr"`
+					Name               string `xml:"name"`
+					Description        string `xml:"description"`
+					Uuid               string `xml:"uuid"`
+					Type               string `xml:"type"`
+					Branch             string `xml:"branch"`
+					TagFilter          string `xml:"tagFilter"`
+					BranchFilter       string `xml:"branchFilter"`
+					SortMode           string `xml:"sortMode"`
+					DefaultValue       string `xml:"defaultValue"`
+					SelectedValue      string `xml:"selectedValue"`
+					QuickFilterEnabled string `xml:"quickFilterEnabled"`
+					ListSize           string `xml:"listSize"`
+				} `xml:"net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition"`
+				HudsonModelStringParameterDefinition []struct {
+					Text         string `xml:",chardata"`
+					Name         string `xml:"name"`
+					Description  string `xml:"description"`
+					DefaultValue string `xml:"defaultValue"`
+					Trim         string `xml:"trim"`
+				} `xml:"hudson.model.StringParameterDefinition"`
+			} `xml:"parameterDefinitions"`
+		} `xml:"hudson.model.ParametersDefinitionProperty"`
+	} `xml:"properties"`
+	Scm struct {
+		Text              string `xml:",chardata"`
+		Class             string `xml:"class,attr"`
+		Plugin            string `xml:"plugin,attr"`
+		ConfigVersion     string `xml:"configVersion"`
+		UserRemoteConfigs struct {
+			Text                             string `xml:",chardata"`
+			HudsonPluginsGitUserRemoteConfig struct {
+				Text          string `xml:",chardata"`
+				URL           string `xml:"url"`
+				CredentialsId string `xml:"credentialsId"`
+			} `xml:"hudson.plugins.git.UserRemoteConfig"`
+		} `xml:"userRemoteConfigs"`
+		Branches struct {
+			Text                       string `xml:",chardata"`
+			HudsonPluginsGitBranchSpec struct {
+				Text string `xml:",chardata"`
+				Name string `xml:"name"`
+			} `xml:"hudson.plugins.git.BranchSpec"`
+		} `xml:"branches"`
+		DoGenerateSubmoduleConfigurations string `xml:"doGenerateSubmoduleConfigurations"`
+		SubmoduleCfg                      struct {
+			Text  string `xml:",chardata"`
+			Class string `xml:"class,attr"`
+		} `xml:"submoduleCfg"`
+		Extensions string `xml:"extensions"`
+	} `xml:"scm"`
+	CanRoam                          string `xml:"canRoam"`
+	Disabled                         string `xml:"disabled"`
+	BlockBuildWhenDownstreamBuilding string `xml:"blockBuildWhenDownstreamBuilding"`
+	BlockBuildWhenUpstreamBuilding   string `xml:"blockBuildWhenUpstreamBuilding"`
+	Jdk                              string `xml:"jdk"`
+	Triggers                         string `xml:"triggers"`
+	ConcurrentBuild                  string `xml:"concurrentBuild"`
+	Goals                            string `xml:"goals"`
+	AggregatorStyleBuild             string `xml:"aggregatorStyleBuild"`
+	IncrementalBuild                 string `xml:"incrementalBuild"`
+	IgnoreUpstremChanges             string `xml:"ignoreUpstremChanges"`
+	IgnoreUnsuccessfulUpstreams      string `xml:"ignoreUnsuccessfulUpstreams"`
+	ArchivingDisabled                string `xml:"archivingDisabled"`
+	SiteArchivingDisabled            string `xml:"siteArchivingDisabled"`
+	FingerprintingDisabled           string `xml:"fingerprintingDisabled"`
+	ResolveDependencies              string `xml:"resolveDependencies"`
+	ProcessPlugins                   string `xml:"processPlugins"`
+	MavenValidationLevel             string `xml:"mavenValidationLevel"`
+	RunHeadless                      string `xml:"runHeadless"`
+	DisableTriggerDownstreamProjects string `xml:"disableTriggerDownstreamProjects"`
+	BlockTriggerWhenBuilding         string `xml:"blockTriggerWhenBuilding"`
+	Settings                         struct {
+		Text  string `xml:",chardata"`
+		Class string `xml:"class,attr"`
+	} `xml:"settings"`
+	GlobalSettings struct {
+		Text  string `xml:",chardata"`
+		Class string `xml:"class,attr"`
+	} `xml:"globalSettings"`
+	Reporters  string `xml:"reporters"`
+	Publishers struct {
+		Text                                            string `xml:",chardata"`
+		OrgJenkinsciPluginsQywechatQyWechatNotification struct {
+			Text            string `xml:",chardata"`
+			Plugin          string `xml:"plugin,attr"`
+			WebhookUrl      string `xml:"webhookUrl"`
+			MentionedId     string `xml:"mentionedId"`
+			MentionedMobile string `xml:"mentionedMobile"`
+			FailNotify      string `xml:"failNotify"`
+			FailSend        string `xml:"failSend"`
+			SuccessSend     string `xml:"successSend"`
+			AboutSend       string `xml:"aboutSend"`
+			UnstableSend    string `xml:"unstableSend"`
+			StartBuild      string `xml:"startBuild"`
+		} `xml:"org.jenkinsci.plugins.qywechat.QyWechatNotification"`
+	} `xml:"publishers"`
 	BuildWrappers struct {
 		Text                                            string `xml:",chardata"`
 		HudsonPluginsTimestamperTimestamperBuildWrapper struct {
@@ -1002,6 +1155,7 @@ type DeployStruct struct {
 	BuildWrappers string `xml:"buildWrappers"`
 }
 
+//nodejs-template-build-deploy 前端构建部署
 type NodejsStruct struct {
 	XMLName          xml.Name `xml:"project"`
 	Text             string   `xml:",chardata"`
@@ -1015,15 +1169,6 @@ type NodejsStruct struct {
 			Plugin           string `xml:"plugin,attr"`
 			GitLabConnection string `xml:"gitLabConnection"`
 		} `xml:"com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty"`
-		OrgJenkinsciPluginsGitlablogoGitlabLogoProperty struct {
-			Text           string `xml:",chardata"`
-			Plugin         string `xml:"plugin,attr"`
-			RepositoryName string `xml:"repositoryName"`
-		} `xml:"org.jenkinsci.plugins.gitlablogo.GitlabLogoProperty"`
-		ComSynopsysArcJenkinsciPluginsJobrestrictionsJobsJobRestrictionProperty struct {
-			Text   string `xml:",chardata"`
-			Plugin string `xml:"plugin,attr"`
-		} `xml:"com.synopsys.arc.jenkinsci.plugins.jobrestrictions.jobs.JobRestrictionProperty"`
 		JenkinsModelBuildDiscarderProperty struct {
 			Text     string `xml:",chardata"`
 			Strategy struct {
@@ -1055,6 +1200,13 @@ type NodejsStruct struct {
 					QuickFilterEnabled string `xml:"quickFilterEnabled"`
 					ListSize           string `xml:"listSize"`
 				} `xml:"net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition"`
+				HudsonModelStringParameterDefinition []struct {
+					Text         string `xml:",chardata"`
+					Name         string `xml:"name"`
+					Description  string `xml:"description"`
+					DefaultValue string `xml:"defaultValue"`
+					Trim         string `xml:"trim"`
+				} `xml:"hudson.model.StringParameterDefinition"`
 			} `xml:"parameterDefinitions"`
 		} `xml:"hudson.model.ParametersDefinitionProperty"`
 	} `xml:"properties"`
@@ -1110,7 +1262,7 @@ type NodejsStruct struct {
 				Plugin     string `xml:"plugin,attr"`
 				Publishers struct {
 					Text                                        string `xml:",chardata"`
-					JenkinsPluginsPublishOverSshBapSshPublisher struct {
+					JenkinsPluginsPublishOverSshBapSshPublisher []struct {
 						Text       string `xml:",chardata"`
 						Plugin     string `xml:"plugin,attr"`
 						ConfigName string `xml:"configName"`
@@ -1149,9 +1301,26 @@ type NodejsStruct struct {
 				} `xml:"hostConfigurationAccess"`
 			} `xml:"delegate"`
 		} `xml:"jenkins.plugins.publish__over__ssh.BapSshPublisherPlugin"`
+		OrgJenkinsciPluginsQywechatQyWechatNotification struct {
+			Text            string `xml:",chardata"`
+			Plugin          string `xml:"plugin,attr"`
+			WebhookUrl      string `xml:"webhookUrl"`
+			MentionedId     string `xml:"mentionedId"`
+			MentionedMobile string `xml:"mentionedMobile"`
+			FailNotify      string `xml:"failNotify"`
+			FailSend        string `xml:"failSend"`
+			SuccessSend     string `xml:"successSend"`
+			AboutSend       string `xml:"aboutSend"`
+			UnstableSend    string `xml:"unstableSend"`
+			StartBuild      string `xml:"startBuild"`
+		} `xml:"org.jenkinsci.plugins.qywechat.QyWechatNotification"`
 	} `xml:"publishers"`
 	BuildWrappers struct {
-		Text                                   string `xml:",chardata"`
+		Text                                            string `xml:",chardata"`
+		HudsonPluginsTimestamperTimestamperBuildWrapper struct {
+			Text   string `xml:",chardata"`
+			Plugin string `xml:"plugin,attr"`
+		} `xml:"hudson.plugins.timestamper.TimestamperBuildWrapper"`
 		JenkinsPluginsNodejsNodeJSBuildWrapper struct {
 			Text                   string `xml:",chardata"`
 			Plugin                 string `xml:"plugin,attr"`
@@ -1164,6 +1333,7 @@ type NodejsStruct struct {
 	} `xml:"buildWrappers"`
 }
 
+// 前端初始构建模板 nodejs-template-build
 type NodejsBuildStruct struct {
 	XMLName          xml.Name `xml:"project"`
 	Text             string   `xml:",chardata"`
@@ -1171,7 +1341,12 @@ type NodejsBuildStruct struct {
 	Description      string   `xml:"description"`
 	KeepDependencies string   `xml:"keepDependencies"`
 	Properties       struct {
-		Text                               string `xml:",chardata"`
+		Text                                                         string `xml:",chardata"`
+		ComDabsquaredGitlabjenkinsConnectionGitLabConnectionProperty struct {
+			Text             string `xml:",chardata"`
+			Plugin           string `xml:"plugin,attr"`
+			GitLabConnection string `xml:"gitLabConnection"`
+		} `xml:"com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty"`
 		JenkinsModelBuildDiscarderProperty struct {
 			Text     string `xml:",chardata"`
 			Strategy struct {
@@ -1183,20 +1358,30 @@ type NodejsBuildStruct struct {
 				ArtifactNumToKeep  string `xml:"artifactNumToKeep"`
 			} `xml:"strategy"`
 		} `xml:"jenkins.model.BuildDiscarderProperty"`
-		ComDabsquaredGitlabjenkinsConnectionGitLabConnectionProperty struct {
-			Text                     string `xml:",chardata"`
-			Plugin                   string `xml:"plugin,attr"`
-			GitLabConnection         string `xml:"gitLabConnection"`
-			JobCredentialId          string `xml:"jobCredentialId"`
-			UseAlternativeCredential string `xml:"useAlternativeCredential"`
-		} `xml:"com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty"`
 		HudsonModelParametersDefinitionProperty struct {
 			Text                 string `xml:",chardata"`
 			ParameterDefinitions struct {
-				Text                                 string `xml:",chardata"`
-				HudsonModelStringParameterDefinition struct {
+				Text                                                            string `xml:",chardata"`
+				NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition struct {
+					Text               string `xml:",chardata"`
+					Plugin             string `xml:"plugin,attr"`
+					Name               string `xml:"name"`
+					Description        string `xml:"description"`
+					Uuid               string `xml:"uuid"`
+					Type               string `xml:"type"`
+					Branch             string `xml:"branch"`
+					TagFilter          string `xml:"tagFilter"`
+					BranchFilter       string `xml:"branchFilter"`
+					SortMode           string `xml:"sortMode"`
+					DefaultValue       string `xml:"defaultValue"`
+					SelectedValue      string `xml:"selectedValue"`
+					QuickFilterEnabled string `xml:"quickFilterEnabled"`
+					ListSize           string `xml:"listSize"`
+				} `xml:"net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition"`
+				HudsonModelStringParameterDefinition []struct {
 					Text         string `xml:",chardata"`
 					Name         string `xml:"name"`
+					Description  string `xml:"description"`
 					DefaultValue string `xml:"defaultValue"`
 					Trim         string `xml:"trim"`
 				} `xml:"hudson.model.StringParameterDefinition"`
@@ -1230,7 +1415,6 @@ type NodejsBuildStruct struct {
 		} `xml:"submoduleCfg"`
 		Extensions string `xml:"extensions"`
 	} `xml:"scm"`
-	AssignedNode                     string `xml:"assignedNode"`
 	CanRoam                          string `xml:"canRoam"`
 	Disabled                         string `xml:"disabled"`
 	BlockBuildWhenDownstreamBuilding string `xml:"blockBuildWhenDownstreamBuilding"`
@@ -1241,14 +1425,32 @@ type NodejsBuildStruct struct {
 	Builders                         struct {
 		Text             string `xml:",chardata"`
 		HudsonTasksShell struct {
-			Text                 string `xml:",chardata"`
-			Command              string `xml:"command"`
-			ConfiguredLocalRules string `xml:"configuredLocalRules"`
+			Text    string `xml:",chardata"`
+			Command string `xml:"command"`
 		} `xml:"hudson.tasks.Shell"`
 	} `xml:"builders"`
-	Publishers    string `xml:"publishers"`
+	Publishers struct {
+		Text                                            string `xml:",chardata"`
+		OrgJenkinsciPluginsQywechatQyWechatNotification struct {
+			Text            string `xml:",chardata"`
+			Plugin          string `xml:"plugin,attr"`
+			WebhookUrl      string `xml:"webhookUrl"`
+			MentionedId     string `xml:"mentionedId"`
+			MentionedMobile string `xml:"mentionedMobile"`
+			FailNotify      string `xml:"failNotify"`
+			FailSend        string `xml:"failSend"`
+			SuccessSend     string `xml:"successSend"`
+			AboutSend       string `xml:"aboutSend"`
+			UnstableSend    string `xml:"unstableSend"`
+			StartBuild      string `xml:"startBuild"`
+		} `xml:"org.jenkinsci.plugins.qywechat.QyWechatNotification"`
+	} `xml:"publishers"`
 	BuildWrappers struct {
-		Text                                   string `xml:",chardata"`
+		Text                                            string `xml:",chardata"`
+		HudsonPluginsTimestamperTimestamperBuildWrapper struct {
+			Text   string `xml:",chardata"`
+			Plugin string `xml:"plugin,attr"`
+		} `xml:"hudson.plugins.timestamper.TimestamperBuildWrapper"`
 		JenkinsPluginsNodejsNodeJSBuildWrapper struct {
 			Text                   string `xml:",chardata"`
 			Plugin                 string `xml:"plugin,attr"`
@@ -1610,8 +1812,8 @@ type NodeNginxDeploySshStruct struct {
 	} `xml:"buildWrappers"`
 }
 
-// java-backend-template-build-base 用于构建java后端项目的基础模板
-type JavaBackEndTemplateBuildBase struct {
+// java-backend-template-build-base 用于构建java后端项目的基础模板 无wx通知
+type JavaBackEndTemplateBuildBaseNOprod struct {
 	XMLName          xml.Name `xml:"maven2-moduleset"`
 	Text             string   `xml:",chardata"`
 	Plugin           string   `xml:"plugin,attr"`
@@ -1735,6 +1937,153 @@ type JavaBackEndTemplateBuildBase struct {
 	} `xml:"globalSettings"`
 	Reporters     string `xml:"reporters"`
 	Publishers    string `xml:"publishers"`
+	BuildWrappers struct {
+		Text                                            string `xml:",chardata"`
+		HudsonPluginsTimestamperTimestamperBuildWrapper struct {
+			Text   string `xml:",chardata"`
+			Plugin string `xml:"plugin,attr"`
+		} `xml:"hudson.plugins.timestamper.TimestamperBuildWrapper"`
+	} `xml:"buildWrappers"`
+	Prebuilders          string `xml:"prebuilders"`
+	Postbuilders         string `xml:"postbuilders"`
+	RunPostStepsIfResult struct {
+		Text          string `xml:",chardata"`
+		Name          string `xml:"name"`
+		Ordinal       string `xml:"ordinal"`
+		Color         string `xml:"color"`
+		CompleteBuild string `xml:"completeBuild"`
+	} `xml:"runPostStepsIfResult"`
+}
+
+// java-backend-template-build-base 用于构建java后端项目的基础模板 有wx通知
+type JavaBackEndTemplateBuildBase struct {
+	XMLName          xml.Name `xml:"maven2-moduleset"`
+	Text             string   `xml:",chardata"`
+	Plugin           string   `xml:"plugin,attr"`
+	Actions          string   `xml:"actions"`
+	Description      string   `xml:"description"`
+	KeepDependencies string   `xml:"keepDependencies"`
+	Properties       struct {
+		Text                                                         string `xml:",chardata"`
+		ComDabsquaredGitlabjenkinsConnectionGitLabConnectionProperty struct {
+			Text             string `xml:",chardata"`
+			Plugin           string `xml:"plugin,attr"`
+			GitLabConnection string `xml:"gitLabConnection"`
+		} `xml:"com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty"`
+		JenkinsModelBuildDiscarderProperty struct {
+			Text     string `xml:",chardata"`
+			Strategy struct {
+				Text               string `xml:",chardata"`
+				Class              string `xml:"class,attr"`
+				DaysToKeep         string `xml:"daysToKeep"`
+				NumToKeep          string `xml:"numToKeep"`
+				ArtifactDaysToKeep string `xml:"artifactDaysToKeep"`
+				ArtifactNumToKeep  string `xml:"artifactNumToKeep"`
+			} `xml:"strategy"`
+		} `xml:"jenkins.model.BuildDiscarderProperty"`
+		HudsonModelParametersDefinitionProperty struct {
+			Text                 string `xml:",chardata"`
+			ParameterDefinitions struct {
+				Text                                                            string `xml:",chardata"`
+				NetUazniaLukanusHudsonPluginsGitparameterGitParameterDefinition struct {
+					Text               string `xml:",chardata"`
+					Plugin             string `xml:"plugin,attr"`
+					Name               string `xml:"name"`
+					Description        string `xml:"description"`
+					Uuid               string `xml:"uuid"`
+					Type               string `xml:"type"`
+					Branch             string `xml:"branch"`
+					TagFilter          string `xml:"tagFilter"`
+					BranchFilter       string `xml:"branchFilter"`
+					SortMode           string `xml:"sortMode"`
+					DefaultValue       string `xml:"defaultValue"`
+					SelectedValue      string `xml:"selectedValue"`
+					QuickFilterEnabled string `xml:"quickFilterEnabled"`
+					ListSize           string `xml:"listSize"`
+				} `xml:"net.uaznia.lukanus.hudson.plugins.gitparameter.GitParameterDefinition"`
+				HudsonModelStringParameterDefinition []struct {
+					Text         string `xml:",chardata"`
+					Name         string `xml:"name"`
+					Description  string `xml:"description"`
+					DefaultValue string `xml:"defaultValue"`
+					Trim         string `xml:"trim"`
+				} `xml:"hudson.model.StringParameterDefinition"`
+			} `xml:"parameterDefinitions"`
+		} `xml:"hudson.model.ParametersDefinitionProperty"`
+	} `xml:"properties"`
+	Scm struct {
+		Text              string `xml:",chardata"`
+		Class             string `xml:"class,attr"`
+		Plugin            string `xml:"plugin,attr"`
+		ConfigVersion     string `xml:"configVersion"`
+		UserRemoteConfigs struct {
+			Text                             string `xml:",chardata"`
+			HudsonPluginsGitUserRemoteConfig struct {
+				Text          string `xml:",chardata"`
+				URL           string `xml:"url"`
+				CredentialsId string `xml:"credentialsId"`
+			} `xml:"hudson.plugins.git.UserRemoteConfig"`
+		} `xml:"userRemoteConfigs"`
+		Branches struct {
+			Text                       string `xml:",chardata"`
+			HudsonPluginsGitBranchSpec struct {
+				Text string `xml:",chardata"`
+				Name string `xml:"name"`
+			} `xml:"hudson.plugins.git.BranchSpec"`
+		} `xml:"branches"`
+		DoGenerateSubmoduleConfigurations string `xml:"doGenerateSubmoduleConfigurations"`
+		SubmoduleCfg                      struct {
+			Text  string `xml:",chardata"`
+			Class string `xml:"class,attr"`
+		} `xml:"submoduleCfg"`
+		Extensions string `xml:"extensions"`
+	} `xml:"scm"`
+	CanRoam                          string `xml:"canRoam"`
+	Disabled                         string `xml:"disabled"`
+	BlockBuildWhenDownstreamBuilding string `xml:"blockBuildWhenDownstreamBuilding"`
+	BlockBuildWhenUpstreamBuilding   string `xml:"blockBuildWhenUpstreamBuilding"`
+	Jdk                              string `xml:"jdk"`
+	Triggers                         string `xml:"triggers"`
+	ConcurrentBuild                  string `xml:"concurrentBuild"`
+	Goals                            string `xml:"goals"`
+	AggregatorStyleBuild             string `xml:"aggregatorStyleBuild"`
+	IncrementalBuild                 string `xml:"incrementalBuild"`
+	IgnoreUpstremChanges             string `xml:"ignoreUpstremChanges"`
+	IgnoreUnsuccessfulUpstreams      string `xml:"ignoreUnsuccessfulUpstreams"`
+	ArchivingDisabled                string `xml:"archivingDisabled"`
+	SiteArchivingDisabled            string `xml:"siteArchivingDisabled"`
+	FingerprintingDisabled           string `xml:"fingerprintingDisabled"`
+	ResolveDependencies              string `xml:"resolveDependencies"`
+	ProcessPlugins                   string `xml:"processPlugins"`
+	MavenValidationLevel             string `xml:"mavenValidationLevel"`
+	RunHeadless                      string `xml:"runHeadless"`
+	DisableTriggerDownstreamProjects string `xml:"disableTriggerDownstreamProjects"`
+	BlockTriggerWhenBuilding         string `xml:"blockTriggerWhenBuilding"`
+	Settings                         struct {
+		Text  string `xml:",chardata"`
+		Class string `xml:"class,attr"`
+	} `xml:"settings"`
+	GlobalSettings struct {
+		Text  string `xml:",chardata"`
+		Class string `xml:"class,attr"`
+	} `xml:"globalSettings"`
+	Reporters  string `xml:"reporters"`
+	Publishers struct {
+		Text                                            string `xml:",chardata"`
+		OrgJenkinsciPluginsQywechatQyWechatNotification struct {
+			Text            string `xml:",chardata"`
+			Plugin          string `xml:"plugin,attr"`
+			WebhookUrl      string `xml:"webhookUrl"`
+			MentionedId     string `xml:"mentionedId"`
+			MentionedMobile string `xml:"mentionedMobile"`
+			FailNotify      string `xml:"failNotify"`
+			FailSend        string `xml:"failSend"`
+			SuccessSend     string `xml:"successSend"`
+			AboutSend       string `xml:"aboutSend"`
+			UnstableSend    string `xml:"unstableSend"`
+			StartBuild      string `xml:"startBuild"`
+		} `xml:"org.jenkinsci.plugins.qywechat.QyWechatNotification"`
+	} `xml:"publishers"`
 	BuildWrappers struct {
 		Text                                            string `xml:",chardata"`
 		HudsonPluginsTimestamperTimestamperBuildWrapper struct {

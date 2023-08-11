@@ -213,15 +213,22 @@ func nodeBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
 	}
 	data.Description = ins.Data.Description
-
+	if len(data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition) == 2 {
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+	} else if len(data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition) == 3 {
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[0].DefaultValue = ins.Data.AppName
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
+		data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppType
+	}
 	// ssh 到那台服务器使用
-	if ins.Data.Sshnode != "" {
-		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
-	}
+	//if ins.Data.Sshnode != "" {
+	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
+	//}
 	// 远程主机执行命令
-	if ins.Data.Sshshell != "" {
-		data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
-	}
+	//if ins.Data.Sshshell != "" {
+	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.Transfers.JenkinsPluginsPublishOverSshBapSshTransfer.ExecCommand = ins.Data.Sshshell
+	//}
 	// 更换nodejs的相关版本信息
 	if ins.Data.Buildenv != "" {
 		data.BuildWrappers.JenkinsPluginsNodejsNodeJSBuildWrapper.NodeJSInstallationName = ins.Data.Buildenv
@@ -248,7 +255,7 @@ func nodeBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 		data.Builders.HudsonTasksShell.Command = ins.Data.Buildeshell
 	}
 	data.Description = ins.Data.Description
-	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition.DefaultValue = ins.Data.AppName
+	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 	//// ssh 到那台服务器使用
 	//if ins.Data.Sshnode != "" {
 	//	data.Publishers.JenkinsPluginsPublishOverSshBapSshPublisherPlugin.Delegate.Publishers.JenkinsPluginsPublishOverSshBapSshPublisher.ConfigName = ins.Data.Sshnode
@@ -334,6 +341,8 @@ func nodeNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 
 // java base 开发环境使用处理函数
 func javaBackEndTemplateBuildBaseXmlProc(ins *task.Task, config string) ([]byte, error) {
+	//data := task.IsEnvJavaStruct(ins)
+
 	data := new(JavaBackEndTemplateBuildBase)
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
 		//s.log.Errorf("jenkins xml 反序列化错误：%s,job名称：%s", err, ins.Data.JobName)
