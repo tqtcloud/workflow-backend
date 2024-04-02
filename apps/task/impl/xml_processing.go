@@ -158,7 +158,14 @@ func javaBuildDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppType
 	// APP_ENV
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[3].DefaultValue = appENV(ins.Data.Env)
-
+	// mvn JDK
+	if ins.Data.Buildenv != "" {
+		data.Jdk = ins.Data.Buildenv
+	}
+	// mvn 构建参数
+	if ins.Data.Buildeshell != "" {
+		data.Goals = ins.Data.Buildeshell
+	}
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
 		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
@@ -190,7 +197,14 @@ func javaBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName + imageName
 	// CODE_MODULE mvn 打包服务 需要使用原名
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppName
-
+	// mvn JDK
+	if ins.Data.Buildenv != "" {
+		data.Jdk = ins.Data.Buildenv
+	}
+	// mvn 构建参数
+	if ins.Data.Buildeshell != "" {
+		data.Goals = ins.Data.Buildeshell
+	}
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
 		//s.log.Errorf("jenkins xml 序列化错误：%s,job名称：%s", err, ins.Data.JobName)
@@ -276,7 +290,7 @@ func nodeBuildXmlProc(ins *task.Task, config string) ([]byte, error) {
 	return xmlData, nil
 }
 
-//nodejs-template-build-nginx-deploy 模板函数处理
+// nodejs-template-build-nginx-deploy 模板函数处理
 func nodeBuildNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := NodeBuildNginxDeployStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
@@ -311,7 +325,7 @@ func nodeBuildNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) 
 	return xmlData, nil
 }
 
-//nodejs-template-nginx-deploy 前端ssh分发模板处理函数
+// nodejs-template-nginx-deploy 前端ssh分发模板处理函数
 func nodeNginxDeployXmlProc(ins *task.Task, config string) ([]byte, error) {
 	data := NodeNginxDeploySshStruct{}
 	if err := xml.Unmarshal([]byte(config), &data); err != nil {
@@ -360,6 +374,14 @@ func javaBackEndTemplateBuildBaseXmlProc(ins *task.Task, config string) ([]byte,
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[1].DefaultValue = ins.Data.AppName
 	// CODE_MODULE mvn 打包服务 需要使用原名
 	data.Properties.HudsonModelParametersDefinitionProperty.ParameterDefinitions.HudsonModelStringParameterDefinition[2].DefaultValue = ins.Data.AppName
+	// mvn JDK
+	if ins.Data.Buildenv != "" {
+		data.Jdk = ins.Data.Buildenv
+	}
+	// mvn 构建参数
+	if ins.Data.Buildeshell != "" {
+		data.Goals = ins.Data.Buildeshell
+	}
 
 	xmlData, err := xml.MarshalIndent(&data, " ", " ")
 	if err != nil {
